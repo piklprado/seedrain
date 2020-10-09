@@ -30,11 +30,11 @@ all.null.2.bray <- aaply(all.null.2, 3, sinc.dist, method = "bray")
 all.null.3.bray <- aaply(all.null.3, 3, sinc.dist, method = "bray")
 ## Median Bray-curtis dissimilarity
 ## Obs
-all.dmed <- dist.med(all.bray)
+all.dmed <- dist.med(all.bray, FUN = "mean")
 ## simulado
-all.null.1.dmed <- aaply(all.null.1.bray, 1, dist.med)
-all.null.2.dmed <- aaply(all.null.2.bray, 1, dist.med)
-all.null.3.dmed <- aaply(all.null.3.bray, 1, dist.med)
+all.null.1.dmed <- aaply(all.null.1.bray, 1, dist.med, FUN = "mean")
+all.null.2.dmed <- aaply(all.null.2.bray, 1, dist.med, FUN = "mean")
+all.null.3.dmed <- aaply(all.null.3.bray, 1, dist.med, FUN = "mean")
 ## Joins medians in a single data.frame
 all.null.dmed <- data.frame(Model = rep(c("Random", "Aggregated", "Autocorrelated"),each = length(all.null.1.dmed)),
                        dmed = c(all.null.1.dmed, all.null.2.dmed, all.null.3.dmed))
@@ -66,11 +66,11 @@ yr1.null.2.bray <- aaply(yr1.null.2, 3, sinc.dist, method = "bray")
 yr1.null.3.bray <- aaply(yr1.null.3, 3, sinc.dist, method = "bray")
 ## Median Bray-curtis dissimilarity
 ## Obs
-yr1.dmed <- dist.med(yr1.bray)
+yr1.dmed <- dist.med(yr1.bray, FUN = "mean")
 ## simulado
-yr1.null.1.dmed <- aaply(yr1.null.1.bray, 1, dist.med)
-yr1.null.2.dmed <- aaply(yr1.null.2.bray, 1, dist.med)
-yr1.null.3.dmed <- aaply(yr1.null.3.bray, 1, dist.med)
+yr1.null.1.dmed <- aaply(yr1.null.1.bray, 1, dist.med, FUN = "mean")
+yr1.null.2.dmed <- aaply(yr1.null.2.bray, 1, dist.med, FUN = "mean")
+yr1.null.3.dmed <- aaply(yr1.null.3.bray, 1, dist.med, FUN = "mean")
 ## Joins medians in a single data.frame
 yr1.null.dmed <- data.frame(Model = rep(c("Random", "Aggregated", "Autocorrelated"),each = length(yr1.null.1.dmed)),
                        dmed = c(yr1.null.1.dmed, yr1.null.2.dmed, yr1.null.3.dmed))
@@ -97,11 +97,11 @@ yr2.null.2.bray <- aaply(yr2.null.2, 3, sinc.dist, method = "bray")
 yr2.null.3.bray <- aaply(yr2.null.3, 3, sinc.dist, method = "bray")
 ## Median Bray-curtis dissimilarity
 ## Obs
-yr2.dmed <- dist.med(yr2.bray)
+yr2.dmed <- dist.med(yr2.bray, FUN = "mean")
 ## simulado
-yr2.null.1.dmed <- aaply(yr2.null.1.bray, 1, dist.med)
-yr2.null.2.dmed <- aaply(yr2.null.2.bray, 1, dist.med)
-yr2.null.3.dmed <- aaply(yr2.null.3.bray, 1, dist.med)
+yr2.null.1.dmed <- aaply(yr2.null.1.bray, 1, dist.med, FUN = "mean")
+yr2.null.2.dmed <- aaply(yr2.null.2.bray, 1, dist.med, FUN = "mean")
+yr2.null.3.dmed <- aaply(yr2.null.3.bray, 1, dist.med, FUN = "mean")
 ## Joins medians in a single data.frame
 yr2.null.dmed <- data.frame(Model = rep(c("Random", "Aggregated", "Autocorrelated"),each = length(yr2.null.1.dmed)),
                        dmed = c(yr2.null.1.dmed, yr2.null.2.dmed, yr2.null.3.dmed))
@@ -129,11 +129,11 @@ yr3.null.2.bray <- aaply(yr3.null.2, 3, sinc.dist, method = "bray")
 yr3.null.3.bray <- aaply(yr3.null.3, 3, sinc.dist, method = "bray")
 ## Median Bray-curtis dissimilarity
 ## Obs
-yr3.dmed <- dist.med(yr3.bray)
+yr3.dmed <- dist.med(yr3.bray, FUN = "mean")
 ## simulado
-yr3.null.1.dmed <- aaply(yr3.null.1.bray, 1, dist.med)
-yr3.null.2.dmed <- aaply(yr3.null.2.bray, 1, dist.med)
-yr3.null.3.dmed <- aaply(yr3.null.3.bray, 1, dist.med)
+yr3.null.1.dmed <- aaply(yr3.null.1.bray, 1, dist.med, FUN = "mean")
+yr3.null.2.dmed <- aaply(yr3.null.2.bray, 1, dist.med, FUN = "mean")
+yr3.null.3.dmed <- aaply(yr3.null.3.bray, 1, dist.med, FUN = "mean")
 ## Joins medians in a single data.frame
 yr3.null.dmed <- data.frame(Model = rep(c("Random", "Aggregated", "Autocorrelated"),each = length(yr3.null.1.dmed)),
                        dmed = c(yr3.null.1.dmed, yr3.null.2.dmed, yr3.null.3.dmed))
@@ -141,8 +141,19 @@ yr3.null.dmed <- data.frame(Model = rep(c("Random", "Aggregated", "Autocorrelate
 sum(yr3.null.1.dmed >= yr3.dmed)/10000
 sum(yr3.null.2.dmed >= yr3.dmed)/10000
 sum(yr3.null.3.dmed >= yr3.dmed)/10000
-
+################################################################################
 ## Plots
+################################################################################
+
+## Quick histograms of Bray-curtis dissimilarities
+hist(all.bray[lower.tri(all.bray)])
+abline(v = dist.med(all.bray, FUN= "median"))
+abline(v = dist.med(all.bray, FUN= "mean"), col ="blue")
+
+hist(yr1.bray)
+hist(yr2.bray)
+hist(y3.bray)
+
 ## Density plots of null distributions and observed values
 p <- all.null.dmed %>%
     ggplot(aes(dmed, group = Model)) +
@@ -175,7 +186,8 @@ p3 <- p %+% yr3.null.dmed  +
 grid.arrange(p.all, p1, p2, p3,
              nrow = 2, ncol = 2)
 
-## Plot of point and bars
+## Plot of points & errorbars of all null models
+## Preparing dataframes
 summary.dmed <- cbind(
     year = rep(c("All Years", "Year 1", "Year 2", "Year 3"), each = 3),
     rbind(
@@ -194,19 +206,23 @@ summary.dmed <- cbind(
         )
 )
 summary.dmed$by <- factor(summary.dmed$by, levels=c("Random", "Aggregated", "Autocorrelated"))
+summary.dmed %<>% mutate(mean.ov = 1- mean, mean.ov.low = 1- mean.low, mean.ov.upp = 1-mean.upp)
 
 observed <- data.frame(year = c("All Years", "Year 1", "Year 2", "Year 3"),
                        by = "Observed", mean = c(all.dmed, yr1.dmed, yr2.dmed, yr3.dmed))
+observed %<>% mutate(mean.ov = 1- mean)
 
 ## The plot
 ## Colorblind-friendly pallete (http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette)
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-ggplot(summary.dmed, aes(year, mean)) +
-    geom_point(data = observed, aes(y = mean, shape = "Observed"), size = 3, position=position_nudge(x = -0.3)) +
-    geom_errorbar(aes(ymin = mean.low, ymax = mean.upp, color = by),
+png("figures/null_models_synchr.png")
+ggplot(summary.dmed, aes(year, mean.ov)) +
+    geom_point(data = observed, aes(y = mean.ov, shape = "Observed"),
+               size = 3, position=position_nudge(x = -0.3)) +
+    geom_errorbar(aes(ymin = mean.ov.low, ymax = mean.ov.upp, color = by),
                   position = position_dodge(width=0.2), size = 1.5, alpha =0.75) +
-    ylab("Mean temporal dissimilarity (Bray Curtis)") +
+    ylab("Mean temporal overlap (Bray Curtis)") +
     xlab("") +
     labs(color = "Null model:", shape = "") +
     scale_color_manual(values = cbPalette[c(2,3,7)]) +
@@ -216,5 +232,5 @@ ggplot(summary.dmed, aes(year, mean)) +
           legend.text = element_text(size = rel(1)),
           legend.title = element_text(size = rel(1.25)),
           legend.position = "bottom")
-    
+dev.off()    
     
