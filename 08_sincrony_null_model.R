@@ -206,11 +206,11 @@ summary.dmed <- cbind(
         )
 )
 summary.dmed$by <- factor(summary.dmed$by, levels=c("Random", "Aggregated", "Autocorrelated"))
-summary.dmed %<>% mutate(mean.ov = 1- mean, mean.ov.low = 1- mean.low, mean.ov.upp = 1-mean.upp)
+summary.dmed %<>% mutate(mean.ov = mean, mean.ov.low = mean.low, mean.ov.upp = mean.upp)
 
 observed <- data.frame(year = c("All Years", "Year 1", "Year 2", "Year 3"),
                        by = "Observed", mean = c(all.dmed, yr1.dmed, yr2.dmed, yr3.dmed))
-observed %<>% mutate(mean.ov = 1- mean)
+observed %<>% mutate(mean.ov = mean)
 
 ## The plot
 ## Colorblind-friendly pallete (http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette)
@@ -222,7 +222,7 @@ ggplot(summary.dmed, aes(year, mean.ov)) +
                size = 3, position=position_nudge(x = -0.3)) +
     geom_errorbar(aes(ymin = mean.ov.low, ymax = mean.ov.upp, color = by),
                   position = position_dodge(width=0.2), size = 1.5, alpha =0.75) +
-    ylab("Mean temporal overlap (Bray Curtis)") +
+    ylab("Mean temporal asynchrony (Bray Curtis)") +
     xlab("") +
     labs(color = "Null model:", shape = "") +
     scale_color_manual(values = cbPalette[c(2,3,7)]) +
