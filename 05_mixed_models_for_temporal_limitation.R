@@ -114,8 +114,9 @@ tsl.pred %<>%
            pfit = ilogit(fit),
            plower = ilogit(lower),
            pupper = ilogit(upper),
-           height.class = ifelse(height <= median.Hloc, paste("Height < ", median.Hloc), paste("Height > ", median.Hloc)),
-           freq.class = ifelse(freq <= median.freq, paste("Freq < ", median.freq), paste("Freq > ", median.freq)),
+           height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
+                                 paste0("Tree Height > ", median.Hloc, " m")),
+           freq.class = ifelse(freq <= median.freq, paste0("Occupancy < ", median.freq), paste0("Occupancy > ", median.freq)),
            )
 
 ## O plot final: observados, previsto pelo modelo geral e IC dos fixos e total
@@ -123,8 +124,9 @@ tsl.pred %<>%
 ## Os previstos são so calculados para a mediana de freq e altura em cada grupo
 p1 <-
     ab.sp.rsl %>%
-    mutate(height.class = ifelse(height <= median.Hloc, paste("Height < ", median.Hloc), paste("Height > ", median.Hloc)),
-           freq.class = ifelse(freq <= median.freq, paste("Freq < ", median.freq), paste("Freq > ", median.freq))) %>%
+    mutate(height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
+                                 paste0("Tree Height > ", median.Hloc, " m")),
+           freq.class = ifelse(freq <= median.freq, paste0("Occupancy < ", median.freq), paste0("Occupancy > ", median.freq))) %>%
     ggplot(aes(mass, tsl.mean)) +
     geom_point(aes(color=species), size=2) +
     geom_linerange(aes(ymin=tsl.min, ymax = tsl.max, color=species)) +
@@ -139,8 +141,9 @@ p1
 ## Escala logito
 p2 <- 
     ab.sp.rsl %>%
-    mutate(height.class = ifelse(height <= median.Hloc, paste("Height < ", median.Hloc), paste("Height > ", median.Hloc)),
-           freq.class = ifelse(freq <= median.freq, paste("Freq < ", median.freq), paste("Freq > ", median.freq))) %>%
+    mutate(height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
+                                 paste0("Height > ", median.Hloc, " m")),
+           freq.class = ifelse(freq <= median.freq, paste0("Occupancy < ", median.freq), paste0("Occupancy > ", median.freq))) %>%
     ggplot(aes(mass, l.tsl.mean)) +
     geom_point(aes(color=species), size=2) +
     geom_linerange(aes(ymin= l.tsl.upper, ymax = l.tsl.lower, color=species)) +
@@ -156,7 +159,7 @@ p2
 ## Apenas as linhas previstas, para avaliar o modelo
 ## Escala logito
 p3 <- tsl.pred %>%
-    mutate(classe = paste(height.class,freq.class, sep =" , ")) %>%
+    mutate(classe = paste0(height.class,freq.class, sep =" , ")) %>%
     ggplot(aes(x=mass)) +
     geom_line(aes(y=fit, color = classe), size=1.2) +
     geom_ribbon(aes(ymin = lower, ymax =upper, fill = classe), alpha =0.1) +
@@ -167,7 +170,7 @@ p3
 
 ## Escala prob
 p4 <- tsl.pred %>%
-    mutate(classe = paste(height.class,freq.class, sep =" , ")) %>%
+    mutate(classe = paste0(height.class,freq.class, sep =" , ")) %>%
     ggplot(aes(x=mass)) +
     geom_line(aes(y=pfit, color = classe), size=1.2) +
     geom_ribbon(aes(ymin = plower, ymax =pupper, fill = classe), alpha =0.1) +

@@ -122,8 +122,9 @@ ssl.pred %<>%
            pfit = ilogit(fit),
            plower = ilogit(lower),
            pupper = ilogit(upper),
-           height.class = ifelse(height <= median.Hloc, paste("Height < ", median.Hloc), paste("Height > ", median.Hloc)),
-           freq.class = ifelse(freq <= median.freq, paste("Freq < ", median.freq), paste("Freq > ", median.freq)),
+           height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
+                                 paste0("Tree Height > ", median.Hloc, " m")),
+           freq.class = ifelse(freq <= median.freq, paste0("Occupancy < ", median.freq), paste0("Occupancy > ", median.freq)),
            )
 
 ## O plot final: observados, previsto pelo modelo geral e IC dos fixos e total
@@ -131,8 +132,8 @@ ssl.pred %<>%
 ## Os previstos são so calculados para a mediana de freq e altura em cada grupo
 p1 <-
     ab.sp.rsl %>%
-    mutate(height.class = ifelse(height <= median.Hloc, paste("Height < ", median.Hloc), paste("Height > ", median.Hloc)),
-           freq.class = ifelse(freq <= median.freq, paste("Freq < ", median.freq), paste("Freq > ", median.freq))) %>%
+    mutate(height.class = ifelse(height <= median.Hloc, paste0("Height < ", median.Hloc), paste0("Height > ", median.Hloc)),
+           freq.class = ifelse(freq <= median.freq, paste0("Freq < ", median.freq), paste0("Freq > ", median.freq))) %>%
     ggplot(aes(mass, ssl.mean)) +
     geom_point(aes(color=species), size=2) +
     geom_linerange(aes(ymin=ssl.min, ymax = ssl.max, color=species)) +
@@ -162,7 +163,8 @@ p2
 
 ## Apenas as linhas previstas, para avaliar o modelo
 ## Escala logito
-p3 <- ssl.pred %>%
+p3 <-
+    ssl.pred %>%
     mutate(classe = paste(height.class,freq.class, sep =" , ")) %>%
     ggplot(aes(x=mass)) +
     geom_line(aes(y=fit, color = classe), size=1.2) +
@@ -173,7 +175,8 @@ p3 <- ssl.pred %>%
 p3
 
 ## Escala prob
-p4 <- ssl.pred %>%
+p4 <-
+    ssl.pred %>%
     mutate(classe = paste(height.class,freq.class, sep =" , ")) %>%
     ggplot(aes(x=mass)) +
     geom_line(aes(y=pfit, color = classe), size=1.2) +

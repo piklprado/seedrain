@@ -85,9 +85,11 @@ log.mass.median  <-  median(log(abundants2$mass))
 freq.median  <-  median(abundants2$freq_ad)
 ## Adds CIs and other auxiliary variables to the dataframe 
 ab.tsl.tot12.newdata  <- mutate(ab.tsl.tot12.newdata,
-                   Hloc.class = ifelse(height2 < median(height2), paste("H < ", Hloc.median), paste("H > ", Hloc.median)),
+                                Hloc.class = ifelse(height2 < median(height2),
+                                                    paste0("Tree Height < ", Hloc.median, " m"),
+                                                    paste0("Tree Height > ", Hloc.median, " m")),
                    freq.class = ifelse(freq2 < median(freq2),
-                                       paste("Freq < ", freq.median), paste("Freq > ", freq.median)),
+                                       paste0("Occupancy < ", freq.median), paste0("Occupancy > ", freq.median)),
                    lower = fit - 2*se.fit,
                    upper = fit + 2*se.fit,
                    fit.resp = ilogit(fit),
@@ -95,10 +97,12 @@ ab.tsl.tot12.newdata  <- mutate(ab.tsl.tot12.newdata,
                    upper.resp = ilogit(upper))
 ## A new dataframe for the predictions
 abundants3 <- abundants2 %>%
-    mutate(Hloc.class = ifelse(Hloc < Hloc.median, paste("H < ", Hloc.median), paste("H > ", Hloc.median)),
-           mass.class = ifelse(log(mass) < log.mass.median, paste("Mass < ", exp(log.mass.median)),
-                               paste("Mass > ", exp(log.mass.median))),
-           freq.class =ifelse(freq_ad < freq.median, paste("Freq < ", freq.median), paste("Freq > ", freq.median)) ,
+    mutate(Hloc.class = ifelse(Hloc < Hloc.median,
+                               paste0("Tree Height < ", Hloc.median, " m"),
+                               paste0("Tree Height > ", Hloc.median, " m")),
+           mass.class = ifelse(log(mass) < log.mass.median, paste0("Seed Mass < ", exp(log.mass.median), " g"),
+                               paste0("Seed Mass > ", exp(log.mass.median), " g")),
+           freq.class =ifelse(freq_ad < freq.median, paste0("Occupancy < ", freq.median), paste0("Occupancy > ", freq.median)) ,
            ssl_tot12 = nm_a_tot12/12, 
            logito.ssl = log(nm_a_tot12/nm_p_tot12),
            tsl_tot12 = nm_a_tot12/12, 

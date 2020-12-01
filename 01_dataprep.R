@@ -2,6 +2,7 @@ library(plyr)
 library(dplyr)
 library(tidyr)
 library(magrittr)
+source("funcoes.R")
 
 ################################################################################
 ## Preparacao dos dados ##
@@ -42,7 +43,8 @@ median.Hloc<-median(abundants$Hloc[abundants$year=="1"])
 
 ## Variaveis padronizadas no objeto abundants
 abundants %<>%
-    mutate(log.mass = log(mass),
+    mutate(sp.i = gsub("\\W*\\b(\\w)\\w*?\\b\\W*", "\\1", species),
+           log.mass = log(mass),
            mass2 = (mass - mean.mass)/sd.mass,
            log.mass2 = (log.mass - mean.log.mass)/sd.log.mass,
            freq2 = (freq_ad - mean.freq)/sd.freq,
@@ -59,14 +61,15 @@ abundants$tsl <- with(abundants, nm_a/nm_tot)
 ################################################################################
 ab.sp.rsl <- abundants %>%
     group_by(species) %>%
-    summarise(ssl.mean = mean(ssl), ssl.sd = sd(ssl), ssl.min=min(ssl), ssl.max = max(ssl),
-              tsl.mean = mean(tsl), tsl.sd = sd(tsl), tsl.min=min(tsl), tsl.max = max(tsl),
+    summarise(ssl.mean = mean(ssl), ssl.sd = sd(ssl), ssl.min=min(ssl), ssl.max = max(ssl), ssl.tot = sum(ssl),
+              tsl.mean = mean(tsl), tsl.sd = sd(tsl), tsl.min=min(tsl), tsl.max = max(tsl), tsl.tot = sum(tsl),
               l.ssl.mean = log(ssl.mean / (1-ssl.mean)), l.ssl.sd = log(ssl.sd / (1-ssl.sd)),
               l.ssl.lower = l.ssl.mean - l.ssl.sd, l.ssl.upper = l.ssl.mean + l.ssl.sd,
               l.tsl.mean = log(tsl.mean / (1-tsl.mean)), l.tsl.sd = log(tsl.sd / (1-tsl.sd)),
               l.tsl.lower = l.tsl.mean - l.tsl.sd, l.tsl.upper = l.tsl.mean + l.tsl.sd,            
               height = mean(Hloc), freq = mean(freq_ad), mass = mean(mass)) %>%
-    ungroup()
+    ungroup() %>%
+    mutate(sp.i = gsub("\\W*\\b(\\w)\\w*?\\b\\W*", "\\1", species))
 
 ## Adiciona ranking de ssl usando massa como desempate
 ab.sp.rsl <- ab.sp.rsl[order(-ab.sp.rsl$ssl.mean, -ab.sp.rsl$mass),]
@@ -86,7 +89,8 @@ tudo82spp$ssl_tot40<-tudo82spp$nt_a_tot40/tudo82spp$nt_tot_tot40
 tudo82spp$tsl_tot12<-tudo82spp$nm_a_tot12/tudo82spp$nm_tot_tot12
 ##Criando um arquivo com somente as 31 espécies mais abundantes, a partir do arquivo tudo82spp
 abundants2<-tudo82spp %>%
-    filter(most_abund == TRUE)
+    filter(most_abund == TRUE) %>%
+    mutate(sp.i = gsub("\\W*\\b(\\w)\\w*?\\b\\W*", "\\1", species))
 ## Padronizando as variáveis para esse novo objeto
 abundants2$log.mass2 <- with(abundants2, (log(mass)-mean(log(mass)))/sd(log(mass)))
 abundants2$freq2 <- with(abundants2, (freq_ad-mean(freq_ad))/sd(freq_ad))
