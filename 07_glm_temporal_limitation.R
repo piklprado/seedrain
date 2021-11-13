@@ -11,14 +11,14 @@ source("01_dataprep.R")
 ################################################################################
 ##  Model fit
 ################################################################################
-## Modelo inicial para Dredge (SEM ZOOCORIA)
+## Full model to feed dredge function (zoocoric species excluded)
 ## Binomial fit
 ab.tsl.tot12.full <- glm(cbind(nm_a_tot12, nm_p_tot12) ~ log.mass2 + freq2 + height2 +
                              log.mass2:freq2 + log.mass2:height2 + freq2:height2,
                          family="binomial",
                          data=abundants2)
 ## Quasibinomial fit
-## Modelo ajustado de tal forma que o dredge funfe com quasibinomial
+## Tweak to allow dredge work with quasibinomial
 ab.tsl.tot12.full.q <- update(ab.tsl.tot12.full, family="x.quasibinom")
 
 ## Dredge
@@ -28,19 +28,19 @@ ab.tsl.tot12.full.d <- dredge(ab.tsl.tot12.full, beta="none", rank=AICc)
 ## Quasibinomial
 ab.tsl.tot12.full.q.d <- dredge(ab.tsl.tot12.full.q, beta="none", rank = "QAICc", chat = dfun(ab.tsl.tot12.full.q))
 
-## Modelos com deltaAIC <2 ##
+## Models with deltaAIC <2 ##
 # Binomial
 subset(ab.tsl.tot12.full.d, delta < 2)
 ## quasibinomial
 subset(ab.tsl.tot12.full.q.d, delta < 2) 
 
-## modelos selecionados
+## Selected models
 ## Binomial
 ab.tsl.tot12.selected <- get.models(ab.tsl.tot12.full.d, delta < 2)
 ## Quasibinomial
 ab.tsl.tot12.selected.q <- get.models(ab.tsl.tot12.full.q.d, delta < 2)
 
-## ICs dos efeitos de cada modelo selecionado
+## CIs of the coefficients of each selected model
 ## Binomial
 ab.tsl.tot12.selected.IC <- lapply(ab.tsl.tot12.selected, confint)
 ## Quasibinomial
@@ -63,11 +63,11 @@ for(i in 1:length(ab.tsl.tot12.selected.q))
 ################################################################################
 ab.tsl.tot12.mavg <- model.avg(ab.tsl.tot12.selected.q)
 
-## CIs dos efeitos medios
-confint(ab.tsl.tot12.mavg, full=TRUE) # para full
-confint(ab.tsl.tot12.mavg, full=FALSE) # para full
+## CIs of coefficients of average model
+confint(ab.tsl.tot12.mavg, full=TRUE) # full
+confint(ab.tsl.tot12.mavg, full=FALSE) # conditional
 
-## Previstos
+## Predicted values 
 ## Dataframe to make the predictions
 ab.tsl.tot12.newdata <- expand.grid(log.mass2 = seq(min(abundants2$log.mass2), max(abundants2$log.mass2), length =30),
                        height2 = quantile(abundants2$height2, c(0.25, 0.75)),

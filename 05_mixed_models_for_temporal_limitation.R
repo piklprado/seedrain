@@ -20,9 +20,9 @@ source("01_dataprep.R")
 ################################################################################
 
 ################################################################################
-## Graficos exploratorios ##
+## Exploratory plots ##
 ################################################################################
-## TSLs ordenados e com maximo e minimo
+## Ordered tsl
 ab.sp.rsl %>%
     arrange(rank.tsl) %>%
     ggplot(aes(rank.tsl, tsl.mean)) +
@@ -32,8 +32,7 @@ ab.sp.rsl %>%
     theme_bw() +
     theme(axis.text.x=element_text(angle=45, vjust=1, hjust = 1) )
 
-## Relacoes com as variaveis preditoras    
-## Medias e min-max de tsl
+## Mean and range of tsl values as a function of the predictor variables    
 ab.sp.rsl %>%
     mutate(mass=jitter(mass)) %>%
     ggplot(aes(mass, tsl.mean, color=species)) +
@@ -58,7 +57,7 @@ ab.sp.rsl %>%
 ################################################################################
 ## Model fit and model averaging
 ################################################################################
-## Modelo inicial para dredge
+## Full model to feed the dredge function
 ab.tl.full <- glmer(cbind(nm_a, nm_p) ~ log.mass2 + freq2 + height2 +
                     mass2:freq2 + mass2:height2 +
                     freq2:height2 + (1|species),
@@ -67,28 +66,26 @@ ab.tl.full <- glmer(cbind(nm_a, nm_p) ~ log.mass2 + freq2 + height2 +
                  control=glmerControl(optimizer="bobyqa",
                                       optCtrl=list(maxfun=2e5)))
                                       
-## Usando a função dredge 
+## Model selection with dredging
 options(na.action = "na.fail")
 ab.tl.full.d <- dredge(ab.tl.full, beta="none")
 
-## Modelos com deltaAIC <2
+## Modes with deltaAIC <2
 subset(ab.tl.full.d, delta<2) 
 
-## modelos selecionados
+## Selected models
 ab.tl.selected <- get.models(ab.tl.full.d, subset=delta<2)
 
-## Modelo medio
+############### Average model ################
 tl.mavg <- model.avg(ab.tl.selected)
 
-## CIs dos efeitos medios
-confint(tl.mavg, full = TRUE) # para full model 
-confint(tl.mavg, full = FALSE) # para conditional model
+## ## Confidence interval of cofficients of the average model
+confint(tl.mavg, full = TRUE) # full averaging 
+confint(tl.mavg, full = FALSE) # conditional averaging
 
-
-## Calculo do intervalo de previsao com efeito fixo e aleatorio, por
-## bootstrap
-## Primeiro criamos uma dataframe com os valores de altura a
-## prever e uma espécie qualquer 
+## Bootstrap estimation of prediction confidence intervals of the model
+## conditional and unconditional to random effects.
+## Data frame with data to estimate predictions
 new.data.tsl <- expand.grid(
     freq2 = quantile(abundants$freq2, c(0.25, 0.75)) ,
     height2 = quantile(abundants$height2, c(0.25, 0.75)),
@@ -96,16 +93,19 @@ new.data.tsl <- expand.grid(
     species = unique(abundants$species)[1]
 )
 
-## Funcao para repetir a cada simulaçao bootstrap: simplesmente o predict para cada valor de altura
+## Function to run on each bootstrap sample
 f1 <- function(.) predict(., newdata = new.data.tsl)
 
-## Super funcao que faz o boostrap e devolve uma lista cujo primerio elemento sao os previstos e seus ICs
-## para cada combinacao das preditoras em newdata
-tsl.bootMer <- ic.bootMer(lista.modelos = ab.tl.selected, newdata = new.data.tsl, nsim = 1000, parallel=TRUE, ncpus = 6)
+## Runs the bootstrap and returns a list with prediction CIs
+tsl.bootMer <- ic.bootMer(lista.modelos = ab.tl.selected,
+                          newdata = new.data.tsl,
+                          nsim = 1000, parallel=TRUE,
+                          ncpus = 6)
+## Boostraped predited values
 tsl.pred <- tsl.bootMer$predicted[, -4]
 
-## Converte valores padronizados em valores na escala original e logitos em probabilidades
-## no dataframe de previstos
+## Returns standardized values of predictor variables to the original scale
+## (for plots)
 tsl.pred %<>%
     mutate(height = height2*sd.Hloc + mean.Hloc,
            freq = freq2*sd.freq + mean.freq,
@@ -119,9 +119,9 @@ tsl.pred %<>%
            freq.class = ifelse(freq <= median.freq, paste0("Occupancy < ", median.freq), paste0("Occupancy > ", median.freq)),
            )
 
-## O plot final: observados, previsto pelo modelo geral e IC dos fixos e total
-## As especies estao divididas em 4 grupos, delimitados pelas medianas de frequencia e altura
-## Os previstos são so calculados para a mediana de freq e altura em cada grupo
+## Plot: observed and predicted values with CI's for fixed effects and fixed + random effects
+## Predicted were calculated for the median values of frequency and tree height
+## of each group depicted in panels
 p1 <-
     ab.sp.rsl %>%
     mutate(height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
@@ -138,7 +138,7 @@ p1 <-
     ylab("TSL")  
 p1
 
-## Escala logito
+## Logit scale
 p2 <- 
     ab.sp.rsl %>%
     mutate(height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
@@ -155,9 +155,8 @@ p2 <-
     ylab("Logito TSL")
 p2
 
-
-## Apenas as linhas previstas, para avaliar o modelo
-## Escala logito
+## Only the predicted lines, to evaluate effects
+## Logit scale
 p3 <- tsl.pred %>%
     mutate(classe = paste0(height.class,freq.class, sep =" , ")) %>%
     ggplot(aes(x=mass)) +
@@ -168,7 +167,7 @@ p3 <- tsl.pred %>%
     ylab("TSL previsto (logito)")
 p3
 
-## Escala prob
+## Probability scale
 p4 <- tsl.pred %>%
     mutate(classe = paste0(height.class,freq.class, sep =" , ")) %>%
     ggplot(aes(x=mass)) +
@@ -179,18 +178,17 @@ p4 <- tsl.pred %>%
     ylab("TSL previsto")
 p4
 
-##para ver todos os graficos 
-p1 ## barras são tsl minimo e máximo
-p2 ## barras são 1 desvio-padrão do logito do desvio-padrão do ssl
+## All plots 
+p1 ## error bars are min-max
+p2 ## error bars are 1 sd ate the logit scale
 p3
 p4
 
-######### Replicability (R-squared) para os modelos selecionados ##############
-## Usando a funcao do MuMIn (acho que é o que precisa, pois dá o R2 condicional (fixed + aleatorios)
-## Metodo delta bate com os valores usando o pacote do Nakagawa (abaixo)
-## Modelo nulo, que será usado de referência
+######### Replicability (pseudo-R-squared) for the selected models ##############
+## Null model to be used as a refernce for replicability calculations
 ab.tl.null <- glmer(cbind(nm_a, nm_p) ~ (1|species),
                     family=binomial,
                     data=abundants)
+## replicabilities, delta method
 for(i in 1:length(ab.tl.selected))
     print(r.squaredGLMM(ab.tl.selected[[i]], null = ab.tl.null))

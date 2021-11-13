@@ -7,48 +7,50 @@ library(rmcorr)
 source("funcoes.R")
 
 ################################################################################
-## Correlacao entre limitação temporal e espacial
+## Correlation between temporal and spatial limitation (tsl x ssl)
 ################################################################################
 
 ################################################################################
-## Gráficos ##
+## Plots ##
 ################################################################################
-##Medias e min-max (linhas cruzadas)  
+## Mean and ranges of tsl and ssl  
 ab.sp.rsl$ssl.meanj <- jitter(ab.sp.rsl$ssl.mean)
 ab.sp.rsl$tsl.meanj <- jitter(ab.sp.rsl$tsl.mean)
 plot(tsl.meanj ~ ssl.meanj, data = ab.sp.rsl, xlim=c(0,1), ylim=c(0,1))
 with(ab.sp.rsl, segments(x0 = ssl.min, x1 = ssl.max, y0=tsl.meanj, y1=tsl.meanj))
 with(ab.sp.rsl, segments(x0 = ssl.meanj, x1 = ssl.meanj, y0=tsl.min, y1=tsl.max))
 
-## Todos os pontos coloridos por spp
+## Points colored by species
 abundants %>%
     ggplot(aes(ssl, tsl)) +
     geom_jitter(aes(color=species)) +
     scale_color_viridis_d() +
     theme_bw()
 
-## Separado por ano
+## By year
 abundants %>%
     ggplot(aes(ssl, tsl)) +
     geom_jitter(aes(color=species)) +
     facet_grid(~year)
 
-##Grafico tot40 X tot12 
-plot(abundants2$ssl_tot40, abundants2$tsl_tot12, xlab="Temporal seed limitation", ylab="Spatial seed limitation")
+##  ssl x tsl
+plot(abundants2$ssl_tot40, abundants2$tsl_tot12,
+     xlab="Temporal seed limitation",
+     ylab="Spatial seed limitation")
 
 ################################################################################
-## Calculos da correlação
+## Correlations
 ################################################################################
-## Correlação entre as ssl e tsl médio, levando em conta medidas repetidas
-## Pacote rmcorr
+## Between mean ssl and tsl, with repeated measurements
+## Package rmcorr
 sl.tl.rmcor <- rmcorr(participant = factor(species), measure1 = ssl, measure2 = tsl, dataset=abundants, CI="bootstrap")
 print(sl.tl.rmcor)
 plot(sl.tl.rmcor)
 
-## Correlação entre as médias (talvez baste)
+## Pearson correlation between mean ssl and tsl
 cor(ab.sp.rsl[,c("ssl.mean", "tsl.mean")])
 
-##Correlações a cada ano
+## Pearson correlation each year
 y1<-abundants%>%
     filter (year=="1")
 cor(y1$ssl, y1$tsl)
@@ -61,6 +63,6 @@ y3<-abundants%>%
     filter (year=="3")
 cor(y3$ssl, y3$tsl)
 
-##Correlação total (tot40 e tot12)
+## Correlation for all species
 cor(tudo82spp$ssl_tot40, tudo82spp$tsl_tot12)
 

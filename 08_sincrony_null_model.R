@@ -14,7 +14,7 @@ source("01_dataprep.R")
 ## All years: shuffles values across the 36 months of sampling
 ################################################################################
 
-## Null model 1: seeds of each species are distributed randomly and idenpendetly acrooss months
+## Null model 1: seeds of each species are distributed randomly and idenpendently acrooss months
 all.null.1 <- null.model(dados = sinc.ab[,-(1:2)], nrep = 10000, FUN = "seed.rand")
 ## Null model 2: monthly counts of seeds of each species are shuffled across months
 all.null.2 <- null.model(dados = sinc.ab[, -(1:2)], nrep = 10000, FUN = "sample")
@@ -31,7 +31,7 @@ all.null.3.bray <- aaply(all.null.3, 3, sinc.dist, method = "bray")
 ## Median Bray-curtis dissimilarity
 ## Obs
 all.dmed <- dist.med(all.bray, FUN = "mean")
-## simulado
+## simulated
 all.null.1.dmed <- aaply(all.null.1.bray, 1, dist.med, FUN = "mean")
 all.null.2.dmed <- aaply(all.null.2.bray, 1, dist.med, FUN = "mean")
 all.null.3.dmed <- aaply(all.null.3.bray, 1, dist.med, FUN = "mean")
@@ -67,7 +67,7 @@ yr1.null.3.bray <- aaply(yr1.null.3, 3, sinc.dist, method = "bray")
 ## Median Bray-curtis dissimilarity
 ## Obs
 yr1.dmed <- dist.med(yr1.bray, FUN = "mean")
-## simulado
+## simulated
 yr1.null.1.dmed <- aaply(yr1.null.1.bray, 1, dist.med, FUN = "mean")
 yr1.null.2.dmed <- aaply(yr1.null.2.bray, 1, dist.med, FUN = "mean")
 yr1.null.3.dmed <- aaply(yr1.null.3.bray, 1, dist.med, FUN = "mean")
@@ -98,7 +98,7 @@ yr2.null.3.bray <- aaply(yr2.null.3, 3, sinc.dist, method = "bray")
 ## Median Bray-curtis dissimilarity
 ## Obs
 yr2.dmed <- dist.med(yr2.bray, FUN = "mean")
-## simulado
+## simulated
 yr2.null.1.dmed <- aaply(yr2.null.1.bray, 1, dist.med, FUN = "mean")
 yr2.null.2.dmed <- aaply(yr2.null.2.bray, 1, dist.med, FUN = "mean")
 yr2.null.3.dmed <- aaply(yr2.null.3.bray, 1, dist.med, FUN = "mean")
@@ -130,7 +130,7 @@ yr3.null.3.bray <- aaply(yr3.null.3, 3, sinc.dist, method = "bray")
 ## Median Bray-curtis dissimilarity
 ## Obs
 yr3.dmed <- dist.med(yr3.bray, FUN = "mean")
-## simulado
+## simulated
 yr3.null.1.dmed <- aaply(yr3.null.1.bray, 1, dist.med, FUN = "mean")
 yr3.null.2.dmed <- aaply(yr3.null.2.bray, 1, dist.med, FUN = "mean")
 yr3.null.3.dmed <- aaply(yr3.null.3.bray, 1, dist.med, FUN = "mean")
@@ -141,11 +141,12 @@ yr3.null.dmed <- data.frame(Model = rep(c("Random", "Aggregated", "Autocorrelate
 sum(yr3.null.1.dmed >= yr3.dmed)/10000
 sum(yr3.null.2.dmed >= yr3.dmed)/10000
 sum(yr3.null.3.dmed >= yr3.dmed)/10000
+
 ################################################################################
 ## Plots
 ################################################################################
 
-## Quick histograms of Bray-curtis dissimilarities
+## Histograms of Bray-curtis dissimilarities for a quick inspection
 hist(all.bray[lower.tri(all.bray)])
 abline(v = dist.med(all.bray, FUN= "median"))
 abline(v = dist.med(all.bray, FUN= "mean"), col ="blue")

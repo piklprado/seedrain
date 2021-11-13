@@ -18,8 +18,8 @@ source("funcoes.R")
 ################################################################################
 ## Mixed-effect models for spatial limitation
 ################################################################################
-## Graficos exploratorios ##
-## SSLs ordenados e com maximo e minimo
+## Exploratory plots ##
+## Ordered ssl
 ab.sp.rsl %>%
     arrange(rank.ssl) %>%
     ggplot(aes(rank.ssl, ssl.mean)) +
@@ -29,8 +29,7 @@ ab.sp.rsl %>%
     theme_bw() +
     theme(axis.text.x=element_text(angle=45, vjust=1, hjust = 1))
 
-## Relacoes com as variaveis preditoras    
-## Medias e min-max de ssl
+## Mean and range of ssl values as a function of the predictor variables    
 ab.sp.rsl %>%
     mutate(mass=jitter(mass)) %>%
     ggplot(aes(mass, ssl.mean, color=species)) +
@@ -53,9 +52,9 @@ ab.sp.rsl %>%
     geom_linerange(aes(ymin=ssl.min, ymax = ssl.max))
 
 ################################################################################
-### Ajuste do modelo, modelo médio e tudo mais ##
+### Model fitting and model averaging ##
 ################################################################################
-## Modelo inicial para dredge
+## Full model to feed the dredge function
 ab.sl.full <- glmer(cbind(nt_a, nt_p) ~ log.mass2 + freq2 + height2 +
                     log.mass2:freq2 + log.mass2:height2 +
                     freq2:height2 + (1|species),
@@ -64,40 +63,32 @@ ab.sl.full <- glmer(cbind(nt_a, nt_p) ~ log.mass2 + freq2 + height2 +
                  control=glmerControl(optimizer="bobyqa",
                                       optCtrl=list(maxfun=2e5)))
 
-##Usando a função dredge
+## Model selection with dredging
 options(na.action = "na.fail")
 ab.sl.full.d <- dredge(ab.sl.full, beta="none")
 
-## Modelos com deltaAIC <2
+## Models with  deltaAIC <2
 subset(ab.sl.full.d, delta < 2) 
 
-## modelos selecionados
+## Selected models
 ab.sl.selected <- get.models(ab.sl.full.d, delta < 2)
 
-## ICs dos efeitos de cada modelo selecionado
+## Confidence intervals of the coefficients of all selected models
 ab.sl.selected.IC <- lapply(ab.sl.selected, confint)
 
-## Resulta numa lista de ICs
-ab.sl.selected.IC
-
-## VIF: nada de muito sério
+## Checking variation inflation factors
 vif(ab.sl.selected[[3]])
 
-############### Modelo medio ################
+############### Average model ################
 sl.mavg <- model.avg(ab.sl.selected)
-summary(sl.mavg)
 
-## CIs dos efeitos medios
-confint(sl.mavg, full=TRUE) # para full
-confint(sl.mavg, full=FALSE) # para conditional
+## Confidence interval of cofficients of the average model
+confint(sl.mavg, full=TRUE) # full averaging
+confint(sl.mavg, full=FALSE) # conditional avergaing
 
-
-## Calculo do intervalo de previsao com efeito fixo e aletorio, por
-## bootstrap Primeiro criamos uma dataframe com os valores de altura a
-## prever e uma espécie qualquer (não faz diferença qual, pq os
-## efeitos aleatorios sao sorteados para cada observaçao) Os valores
-## de height2 neste df são os mesmos usados no passo anterior para
-## calcular os efeitos fixos
+## Bootstrap estimation of prediction confidence intervals of the model
+## conditional and unconditional to random effects.
+## Data frame with data to estimate predictions
 new.data.ssl <- expand.grid(
     freq2 = quantile(abundants$freq2, c(0.25, 0.75)) ,
     height2 = quantile(abundants$height2, c(0.25, 0.75)),
@@ -105,15 +96,18 @@ new.data.ssl <- expand.grid(
     species = unique(abundants$species)[1]
 )
 
-## Funcao para repetir a cada simulaçao bootstrap: simplesmente o predict para cada valor de altura
+## Function to run on each bootstrap sample
 f1 <- function(.) predict(., newdata = new.data.ssl)
 
-## Super funcao que faz o boostrap e devolve uma lista cujo primerio elemento sao os previstos e seus ICs
-## para cada combinacao das preditoras em newdata
-ssl.bootMer <- ic.bootMer(lista.modelos = ab.sl.selected, newdata = new.data.ssl, nsim = 1000, parallel=TRUE, ncpus = 6)
+## Runs the bootstrap and returns a list with prediction CIs
+ssl.bootMer <- ic.bootMer(lista.modelos = ab.sl.selected,
+                          newdata = new.data.ssl,
+                          nsim = 1000, parallel=TRUE,
+                          ncpus = 6)
+## Boostraped predited values
 ssl.pred <- ssl.bootMer$predicted[, -4]
-## Converte valores padronizados em valores na escala original e logitos em probabilidades
-## no dataframe de previstos
+## Returns standardized values of predictor variables to the original scale
+## (for plots)
 ssl.pred %<>%
     mutate(height = height2*sd.Hloc + mean.Hloc,
            freq = freq2*sd.freq + mean.freq,
@@ -127,9 +121,9 @@ ssl.pred %<>%
            freq.class = ifelse(freq <= median.freq, paste0("Occupancy < ", median.freq), paste0("Occupancy > ", median.freq)),
            )
 
-## O plot final: observados, previsto pelo modelo geral e IC dos fixos e total
-## As especies estao divididas em 4 grupos, delimitados pelas medianas de frequencia e altura
-## Os previstos são so calculados para a mediana de freq e altura em cada grupo
+## Plot: observed and predicted values with CI's for fixed effects and fixed + random effects
+## Predicted were calculated for the median values of frequency and tree height
+## of each group depicted in panels
 p1 <-
     ab.sp.rsl %>%
     mutate(height.class = ifelse(height <= median.Hloc, paste0("Height < ", median.Hloc), paste0("Height > ", median.Hloc)),
@@ -145,7 +139,7 @@ p1 <-
     ylab("SSL")  
 p1
     
-## Escala logito
+## Same plot in logit scale
 p2 <- 
     ab.sp.rsl %>%
     mutate(height.class = ifelse(height <= median.Hloc, paste("Height < ", median.Hloc), paste("Height > ", median.Hloc)),
@@ -161,8 +155,8 @@ p2 <-
     ylab("Logito SSL")
 p2
 
-## Apenas as linhas previstas, para avaliar o modelo
-## Escala logito
+## Only the predicted lines, to evaluate effects
+## Logit scale
 p3 <-
     ssl.pred %>%
     mutate(classe = paste(height.class,freq.class, sep =" , ")) %>%
@@ -174,7 +168,7 @@ p3 <-
     ylab("SSL previsto (logito)")
 p3
 
-## Escala prob
+## Probability scale
 p4 <-
     ssl.pred %>%
     mutate(classe = paste(height.class,freq.class, sep =" , ")) %>%
@@ -186,18 +180,17 @@ p4 <-
     ylab("SSL previsto")
 p4
     
-##para ver todos os graficos 
-p1 ## barras são ssl minimo e máximo
-p2 ## barras são 1 desvio-padrão do logito do desvio-padrão do ssl
+## All plots
+p1 ## error bars are min-max
+p2 ## error bars are 1 sd ate the logit scale
 p3
 p4
 
-######### Replicability (R-squared) para os modelos selecionados ##############
-## Usando a funcao do MuMIn (acho que é o que precisa, pois dá o R2 condicional (fixed + aleatorios)
-## Metodo delta bate com os valores usando o pacote do Nakagawa (abaixo)
-## Modelo nulo, que será usado de referência
+######### Replicability (pseudo-R-squared) for the selected models ##############
+## Null model to be used as a refernce for replicability calculations
 ab.sl.null <- glmer(cbind(nt_a, nt_p) ~ (1|species),
                     family=binomial,
                     data=abundants)
+## replicabilities, with delta method
 for(i in 1:length(ab.sl.selected))
     print(r.squaredGLMM(ab.sl.selected[[i]], null = ab.sl.null))

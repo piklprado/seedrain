@@ -5,43 +5,41 @@ library(magrittr)
 source("funcoes.R")
 
 ################################################################################
-## Preparacao dos dados ##
+## Data preparation ##
 ################################################################################
 
 ################################################################################
-## 1. Planilha somente com as 49 spp identificadas até o nível de spp ##
+## 1. 49 species identified up to species level ##
 ################################################################################
 raw <- read.csv("data/table_final_traps_months_traits.csv", as.is=TRUE)
-##transformando ano em fator no objeto raw
+## covert sampling year in factor
 raw$year<-as.factor(raw$year)
-## Variavel de Zoocoria no objeto raw
+## factor for zoocoric dispersion
 raw$zooc <- raw$syndr=="Zoocoria"
 
 ################################################################################
-## Objeto "abundants": 
-## Selecionando apenas as 31 especies mais abundantes no objeto raw: pelo menos 5 registros
+## Object "abundants": 
+## The 31 most abundant species ( species with at least 5 records)
 ################################################################################
 abundants <- raw[raw$most_abund,]
-
-##Criando um objeto sd usando apenas um dos anos (os valores para os três anos são iguais, então
-## escolhi o ano 1). Fizemos isso para que o "n" usado no cálculo de sd seja o número de espécies (aqui = 31)
-## e não o número de linhas (que é 93 nesse arquivo, pois cada espécie tem o valor repetido para os três anos). 
+## Standard deviation of species variables (across species, n=31)
 sd.mass<-sd(abundants$mass[abundants$year=="1"])
 sd.log.mass<-sd(log(abundants$mass[abundants$year=="1"]))
 sd.freq<-sd(abundants$freq_ad[abundants$year=="1"])
 sd.Hloc<-sd(abundants$Hloc[abundants$year=="1"])
-## medias e medianas tambem. Não precisava, apenas conveniencia
+## Mean and medians too (convenience)
+## Mean
 mean.mass<-mean(abundants$mass[abundants$year=="1"])
 mean.log.mass<-mean(log(abundants$mass[abundants$year=="1"]))
 mean.freq<-mean(abundants$freq_ad[abundants$year=="1"])
 mean.Hloc<-mean(abundants$Hloc[abundants$year=="1"])
-## Medianas
+## Median
 median.mass<-median(abundants$mass[abundants$year=="1"])
 median.log.mass<-median(log(abundants$mass[abundants$year=="1"]))
 median.freq<-median(abundants$freq_ad[abundants$year=="1"])
 median.Hloc<-median(abundants$Hloc[abundants$year=="1"])
 
-## Variaveis padronizadas no objeto abundants
+## Variable standardization in the 'abundants" dataframe. 
 abundants %<>%
     mutate(sp.i = gsub("\\W*\\b(\\w)\\w*?\\b\\W*", "\\1", species),
            log.mass = log(mass),
@@ -50,14 +48,14 @@ abundants %<>%
            freq2 = (freq_ad - mean.freq)/sd.freq,
            height2 = (Hloc - mean.Hloc)/sd.Hloc)
 
-## Calcula limitacao espacial (proporcao de coletores em que nao esteve) no objeto abundants
+## Spatial limitation : proportion of seed collectors in which the species was not recorded.
 abundants$ssl <- with(abundants, nt_a/nt_tot)
 
-## Calcula a limitacao temporal (meses do ano em que não esteve) no objeto abundants
+## Temporal limitation: sampling months at which the species was not recorded
 abundants$tsl <- with(abundants, nm_a/nm_tot)
 
 ################################################################################
-## Ranking das especies mais abundantes, de acordo com o ssl medio
+## Ranking of most abundant species, according mean spatial and temporal limitation
 ################################################################################
 ab.sp.rsl <- abundants %>%
     group_by(species) %>%
@@ -71,27 +69,27 @@ ab.sp.rsl <- abundants %>%
     ungroup() %>%
     mutate(sp.i = gsub("\\W*\\b(\\w)\\w*?\\b\\W*", "\\1", species))
 
-## Adiciona ranking de ssl usando massa como desempate
+## Adds the ssl ranking to data , using seed mass to order ties
 ab.sp.rsl <- ab.sp.rsl[order(-ab.sp.rsl$ssl.mean, -ab.sp.rsl$mass),]
 ab.sp.rsl$rank.ssl <- 1:nrow(ab.sp.rsl)
 
-## Adiciona ranking de tsl usando massa como desempate
+## Adds the tsl ranking to data , using seed mass to order ties
 ab.sp.rsl <- ab.sp.rsl[order(-ab.sp.rsl$tsl.mean, -ab.sp.rsl$mass),]
 ab.sp.rsl$rank.tsl <- 1:nrow(ab.sp.rsl)
 
 ################################################################################
-## 2. Planilha com todas as espécies e com cada ano em colunas diferentes
+## 2. A data frame with all species and sampling years in separate columns
 ################################################################################
 
 tudo82spp <- read.csv("data/all_82spp_years_in_columns_mean_total.csv", as.is=FALSE)
-##Criando as variáveis ssl e tsl para tot40 e tot12, respectivamente
+## Calculates tsl and ssl 
 tudo82spp$ssl_tot40<-tudo82spp$nt_a_tot40/tudo82spp$nt_tot_tot40
 tudo82spp$tsl_tot12<-tudo82spp$nm_a_tot12/tudo82spp$nm_tot_tot12
-##Criando um arquivo com somente as 31 espécies mais abundantes, a partir do arquivo tudo82spp
+## A new dataframe with only the 31 most abundant species, from the object above
 abundants2<-tudo82spp %>%
     filter(most_abund == TRUE) %>%
     mutate(sp.i = gsub("\\W*\\b(\\w)\\w*?\\b\\W*", "\\1", species))
-## Padronizando as variáveis para esse novo objeto
+## Variable standardization
 abundants2$log.mass2 <- with(abundants2, (log(mass)-mean(log(mass)))/sd(log(mass)))
 abundants2$freq2 <- with(abundants2, (freq_ad-mean(freq_ad))/sd(freq_ad))
 abundants2$height2 <- with(abundants2, (Hloc-mean(Hloc))/sd(Hloc))
@@ -99,23 +97,23 @@ abundants2$height2 <- with(abundants2, (Hloc-mean(Hloc))/sd(Hloc))
 ################################################################################
 ## Temporal distribution of seedrain
 ################################################################################
-## Leitura dos dados
+## Reading data
 sinc <- read.csv("data/DadosBrutos_Assincronia.csv", as.is=TRUE)
-## Ai caramba, onde devia ser zero tá como NA
+## Some NA's that are actually zeroes
 sinc[is.na(sinc)] <- 0
-## Ai caramba, tem especie com zero sementes
+## Filtering species with at least one seed sampled in the collectors
 sinc <- sinc[,c(TRUE, TRUE, apply(sinc[,-(1:2)],2,sum)>0)]
-## Outras correcoes
+## A few other corrections in the data
 sinc %<>%
     mutate(year_study = factor(year_study), month_study = factor(month_study))
 
-## Dados em abundância relativa de cada espécie 
-## Apenas especies com pelo menos 5 sementes
+## relative abundance of each species
+## Only species with ate least 5 records
 sp.abund <- gsub( " ", ".", unique(abundants$species))
 sinc.ab <- sinc[, c(names(sinc)[1:2], sp.abund)]
-## Abundancias relativas supra-anual: em relação ao total dos 3 anos
+## Abundances relative to the total abundances over the three years of sampling
 sinc.ab.ar <- sweep(sinc.ab[, -(1:2)], MARGIN=2, STATS = apply(sinc.ab[, -(1:2)], 2, sum), FUN="/")
-## Abundancias relativas ao total em cada ano
+## Abundances relative to the total of seeds sampled each year
 sinc.ab.ary <-
     sinc.ab %>%
     group_by(year_study) %>%

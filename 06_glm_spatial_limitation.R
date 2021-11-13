@@ -14,14 +14,14 @@ source("01_dataprep.R")
 ################################################################################
 ##  Model fit
 ################################################################################
-## Modelo inicial para Dredge (SEM ZOOCORIA)
+## Full model to feed dredge function
 ## Binomial fit
 ab.ssl.tot40.full <- glm(cbind(nt_a_tot40, nt_p_tot40) ~ log.mass2 + freq2 + height2 +
                              log.mass2:freq2 + log.mass2:height2 + freq2:height2,
                          family="binomial",
                          data=abundants2)
 ## Quasibinomial fit
-## Modelo ajustado de tal forma que o dredge funfe com quasibinomial
+## Tweak to allow dredge to use quasibinomial
 ab.ssl.tot40.full.q <- update(ab.ssl.tot40.full, family="x.quasibinom")
 
 ## Dredge
@@ -31,19 +31,19 @@ ab.ssl.tot40.full.d <- dredge(ab.ssl.tot40.full, beta="none", rank=AICc)
 ## Quasibinomial
 ab.ssl.tot40.full.q.d <- dredge(ab.ssl.tot40.full.q, beta="none", rank = "QAICc", chat = dfun(ab.ssl.tot40.full.q))
 
-## Modelos com deltaAIC <2 ##
+## Modelos eith deltaAIC <2 ##
 # Binomial
 subset(ab.ssl.tot40.full.d, delta < 2)
 ## quasibinomial
 subset(ab.ssl.tot40.full.q.d, delta < 2) 
 
-## modelos selecionados
+## Selected models
 ## Binomial
 ab.ssl.tot40.selected <- get.models(ab.ssl.tot40.full.d, delta < 2)
 ## Quasibinomial
 ab.ssl.tot40.selected.q <- get.models(ab.ssl.tot40.full.q.d, delta < 2)
 
-## ICs dos efeitos de cada modelo selecionado
+## CI's of coefficients of the selected models
 ## Binomial
 ab.ssl.tot40.selected.IC <- lapply(ab.ssl.tot40.selected, confint)
 ## Quasibinomial
@@ -67,11 +67,11 @@ for(i in 1:length(ab.ssl.tot40.selected.q))
 ################################################################################
 ab.ssl.tot40.mavg <- model.avg(ab.ssl.tot40.selected.q)
 
-## CIs dos efeitos medios
-confint(ab.ssl.tot40.mavg, full=TRUE) # para full
-confint(ab.ssl.tot40.mavg, full=FALSE) # para full
+## CIs fo the cofficients of the average model
+confint(ab.ssl.tot40.mavg, full=TRUE) # full
+confint(ab.ssl.tot40.mavg, full=FALSE) # conditional
 
-## Previstos
+## Predicted values by the average model
 ## Dataframe to make the predictions
 ab.ssl.tot40.newdata <- expand.grid(log.mass2 = seq(min(abundants2$log.mass2), max(abundants2$log.mass2), length =30),
                        height2 = quantile(abundants2$height2, c(0.25, 0.75)),
@@ -81,9 +81,9 @@ predict <- as.data.frame(predict(ab.ssl.tot40.mavg,
                                  newdata = ab.ssl.tot40.newdata,
                                  se.fit=TRUE))
 ab.ssl.tot40.newdata <- cbind(ab.ssl.tot40.newdata, predict)
-## add unscaled variables to predicted values
+## add unstandardized variables to predicted values
 ab.ssl.tot40.newdata$mass  <- with(abundants2, exp( (ab.ssl.tot40.newdata$log.mass2 * sd(log(mass)) + mean(log(mass)) )))
-## Unscaled Cutoffs for height and frequency
+## Unstandarzide Cutoffs for height and frequency
 Hloc.median <- median(abundants2$Hloc)
 log.mass.median  <-  median(log(abundants2$mass))
 freq.median  <-  median(abundants2$freq_ad)
