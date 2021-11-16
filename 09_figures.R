@@ -2,6 +2,8 @@ library(ggplot2)
 library(ggthemes)
 library(gridExtra)
 library(dplyr)
+library(tidyr)
+library(magrittr)
 library(ggrepel)
 
 
@@ -119,7 +121,7 @@ p4a <-
     ab.sp.rsl %>%
     mutate(height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
                                  paste0("Tree Height > ", median.Hloc, " m")),
-           freq.class = ifelse(freq <= median.freq, paste0("Occupancy < ", median.freq), paste0("Occupancy > ", median.freq))) %>%
+           freq.class = ifelse(freq <= median.freq, paste0("Adult frequency < ", median.freq), paste0("Adult frequency  > ", median.freq))) %>%
     ggplot(aes(mass, ssl.mean)) +
     geom_ribbon(aes(y = pfit, ymin = plower, ymax = pupper), data = ssl.pred, fill="gray", alpha=0.75) +
     geom_point(size=2) +
@@ -134,8 +136,8 @@ p4a <-
 ab.sp.rsl %<>%
     mutate(height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
                                  paste0("Tree Height > ", median.Hloc, " m")),
-           freq.class = ifelse(freq <= median.freq, paste0("Occupancy < ", median.freq),
-                               paste0("Occupancy > ", median.freq)),
+           freq.class = ifelse(freq <= median.freq, paste0("Adult Frequency < ", median.freq),
+                               paste0("Adult Frequency > ", median.freq)),
            classe = paste(height.class,freq.class, sep =" , "))
                       
 p4b <-
@@ -185,7 +187,8 @@ p6a <-
     ab.sp.rsl %>%
     mutate(height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
                                  paste0("Tree Height > ", median.Hloc, " m")),
-           freq.class = ifelse(freq <= median.freq, paste0("Occupancy < ", median.freq), paste0("Occupancy > ", median.freq))) %>%
+           freq.class = ifelse(freq <= median.freq, paste0("Adult Frequency < ", median.freq),
+                               paste0("Adult Frequency > ", median.freq))) %>%
     ggplot(aes(mass, tsl.mean)) +
     geom_point(size=2) +
     geom_linerange(aes(ymin=tsl.min, ymax = tsl.max)) +
@@ -203,8 +206,8 @@ p6a <-
 ab.sp.rsl %<>%
     mutate(height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
                                  paste0("Tree Height > ", median.Hloc, " m")),
-           freq.class = ifelse(freq <= median.freq, paste0("Occupancy < ", median.freq),
-                               paste0("Occupancy > ", median.freq)),
+           freq.class = ifelse(freq <= median.freq, paste0("Adult Frequency < ", median.freq),
+                               paste0("Adult Frequency > ", median.freq)),
            classe = paste(height.class,freq.class, sep =" , "))
                       
 p6b <-

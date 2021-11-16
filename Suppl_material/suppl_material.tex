@@ -1,0 +1,91 @@
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{placeins}
+\usepackage{lineno}
+\newcolumntype{d}{S[input-symbols = ()]}
+
+\renewcommand{\thefigure}{S-\arabic{figure}}
+\renewcommand{\thetable}{S-\arabic{table}}
+\renewcommand{\theequation}{S-\arabic{equation}}
+\renewcommand{\thesection}{S}
+\renewcommand{\thelinenumber}{S-\arabic{linenumber}}
+\renewcommand{\thepage}{Supp.Mat. page \arabic{page}}
+
+\begin{document}
+
+
+\title{Strong spatial and temporal limitation in seed arrival as  complementary mechanisms for species coexistence in a tropical Atlantic coastal forest}
+
+
+\author{Leticia B. Zimback, Paulo I. Prado, Marcelo P. Pansonato, \\ Geraldo A. D. C. Franco,  
+Adriana M. Z. Martini}
+
+\date{\Large Supplementary Information}
+
+\maketitle
+
+%\section{Model selection and average models}
+%\label{sec:model-select-aver}
+
+In this %section
+appendix
+we report the coefficients of the selected models
+($\Delta \mathrm{AIC} \leq 2$) to describe spatial seed limitation
+(\emph{SSL}, equation 1 in Methods in the main paper) and temporal
+seed limitation (\emph{TSL}, equation 2). We also provide the AIC
+values for each model and the coefficients for the average model,
+obtained from the selected models.
+
+
+The set of competing models have as linear predictors all combinations
+of the following fixed effects and their interactions (see methods in
+the main paper for details):
+
+\begin{description}
+\item[Log seed mass]: logarithm dry seed mass average of each plant species
+\item[Adult maximum height]:  maximum tree height recorded in the study site \cite{pansonato2018}.
+\item[Frequency of adults]: proportion of the sampling plots in which adults of each species was recorded \cite{pansonato2018}. 
+\end{description}
+
+All these fixed-effect variables were standardized as z-values, to
+ease convergence fo the mixed-effect models, and also to allow
+comparison of the coefficients for each effect. We thus refer the
+coefficients as ``standardized coefficients'' in the tables below.
+
+We evaluated two response variables to express SSL: (i) the proportion
+of seed traps where seeds of each species were not recorded each year,
+and (ii) the proportion of traps where seeds of each species were
+never recorded in any of the three sampling years. Accordingly, TSL
+was also assessed by two response variables: (i) proportion of
+sampling occasions (months) when seeds of each species were not
+recorded in some trap, and (ii) proportion of the twelve months of the
+year when seeds of each species were not recorded over the three
+sampling years.
+
+Response variables (i) have three values for each species, which
+correspond to the proportions of unoccupied traps or occasions each
+sampling year. We thus included in the model for these responses a
+random effect for plant species. For
+response variables (ii) we used linear models only with the fixed
+effects, as there is no repeated responses for each plant species. As
+all response variables are proportions, we used generalized binomial
+models.
+
+\FloatBarrier
+
+\input{tsl_mixed.tex}
+
+\input{ssl_mixed.tex}
+
+\input{tsl_glm.tex}
+
+\input{ssl_glm.tex}
+
+
+\bibliographystyle{plain}
+\bibliography{suppl}
+
+
+\end{document}
