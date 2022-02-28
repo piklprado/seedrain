@@ -43,7 +43,7 @@ plot(abundants2$ssl_tot40, abundants2$tsl_tot12,
 ################################################################################
 ## Between mean ssl and tsl, with repeated measurements
 ## Package rmcorr
-sl.tl.rmcor <- rmcorr(participant = factor(species), measure1 = ssl, measure2 = tsl, dataset=abundants, CI="bootstrap")
+sl.tl.rmcor <- rmcorr(participant = factor(species), measure1 = ssl, measure2 = tsl, dataset=abundants, CIs="bootstrap")
 print(sl.tl.rmcor)
 plot(sl.tl.rmcor)
 

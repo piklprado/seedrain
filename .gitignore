@@ -1,5 +1,5 @@
-/.RData
-/.Rhistory
+*.RData
+*.Rhistory
 *~
 *.aux
 *.log

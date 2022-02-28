@@ -58,12 +58,12 @@ scale_colour_Publication <- function(...){
 }
 
 ################################################################################
-## Occupancy distribution across months and traps (box plots)
+## Tree frequency distribution across months and traps (box plots)
 ################################################################################
 ## Traps
 p1 <-
     tudo82spp %>%
-    select(species, nt_p1, nt_p2, nt_p3, nt_p_tot40) %>%
+    dplyr::select(species, nt_p1, nt_p2, nt_p3, nt_p_tot40) %>%
     pivot_longer(-species, names_to = "period", values_to = "n.traps") %>%
     ggplot(aes(period, n.traps)) +
     geom_boxplot() +
@@ -75,7 +75,7 @@ p1 <-
 ## Months
 p2 <-
     tudo82spp %>%
-    select(species, nm_p1, nm_p2, nm_p3, nm_p_tot12) %>%
+    dplyr::select(species, nm_p1, nm_p2, nm_p3, nm_p_tot12) %>%
     pivot_longer(-species, names_to = "period", values_to = "n.months") %>%
     ggplot(aes(period, n.months)) +
     geom_boxplot() +
@@ -87,8 +87,8 @@ p2 <-
 
 ## A single figure with both as panels
 p12 <- arrangeGrob(p1, p2, ncol = 2, nrow = 1)
-ggsave(filename= "figures/occupancy_boxplots.pdf", plot = p12, width =8, height = 4, device=cairo_pdf)
-ggsave(filename= "figures/occupancy_boxplots.png", plot = p12, width =8, height = 4)
+ggsave(filename= "figures/frequency_boxplots.pdf", plot = p12, width =8, height = 4, device=cairo_pdf)
+ggsave(filename= "figures/frequency_boxplots.png", plot = p12, width =8, height = 4)
 
 
 ################################################################################
@@ -109,8 +109,8 @@ p3 <-
     scale_size_manual(values = c(1.5,1.5,1.5)) +
     theme_Publication() 
 
-ggsave(filename= "figures/null_models_synchrony.pdf", plot = p3, device=cairo_pdf)
-ggsave(filename= "figures/null_models_synchrony.png", plot = p3, width =8)
+ggsave(filename= "figures/null_models_synchrony.pdf", plot = p3, width = 9, height = 7.5, device=cairo_pdf)
+ggsave(filename= "figures/null_models_synchrony.png", plot = p3, width = 9, height = 7.5)
 
 
 ################################################################################
@@ -119,9 +119,12 @@ ggsave(filename= "figures/null_models_synchrony.png", plot = p3, width =8)
 ## In separated panels
 p4a <-
     ab.sp.rsl %>%
-    mutate(height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
+    mutate(height.class = ifelse(height <= median.Hloc,
+                                 paste0("Tree Height < ", median.Hloc, " m"),
                                  paste0("Tree Height > ", median.Hloc, " m")),
-           freq.class = ifelse(freq <= median.freq, paste0("Adult frequency < ", median.freq), paste0("Adult frequency  > ", median.freq))) %>%
+           freq.class = ifelse(freq <= median.freq,
+                               paste0("Adult Frequency < ", median.freq),
+                               paste0("Adult Frequency > ", median.freq))) %>%
     ggplot(aes(mass, ssl.mean)) +
     geom_ribbon(aes(y = pfit, ymin = plower, ymax = pupper), data = ssl.pred, fill="gray", alpha=0.75) +
     geom_point(size=2) +
@@ -134,9 +137,11 @@ p4a <-
     theme_Publication()
 ## In a single panel
 ab.sp.rsl %<>%
-    mutate(height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
+    mutate(height.class = ifelse(height <= median.Hloc,
+                                 paste0("Tree Height < ", median.Hloc, " m"),
                                  paste0("Tree Height > ", median.Hloc, " m")),
-           freq.class = ifelse(freq <= median.freq, paste0("Adult Frequency < ", median.freq),
+           freq.class = ifelse(freq <= median.freq,
+                               paste0("Adult Frequency < ", median.freq),
                                paste0("Adult Frequency > ", median.freq)),
            classe = paste(height.class,freq.class, sep =" , "))
                       
@@ -155,10 +160,10 @@ p4b <-
     theme(legend.position = c(0.75, 0.25), legend.title = element_blank(), legend.direction = "vertical")
 
 
-ggsave(filename= "figures/SSL_pred_prob.pdf", plot = p4a, width = 9, device=cairo_pdf)
-ggsave(filename= "figures/SSL_pred.prob.png", plot = p4a, width = 9)
-ggsave(filename= "figures/SSL_pred_prob_single.pdf", plot = p4b, width = 9, device=cairo_pdf)
-ggsave(filename= "figures/SSL_pred.prob_single.png", plot = p4b, width = 9)
+ggsave(filename= "figures/SSL_pred_prob.pdf", plot = p4a, width = 9, height = 9, device=cairo_pdf)
+ggsave(filename= "figures/SSL_pred.prob.png", plot = p4a, width = 9, height = 9)
+ggsave(filename= "figures/SSL_pred_prob_single.pdf", plot = p4b, width = 9, height = 9, device=cairo_pdf)
+ggsave(filename= "figures/SSL_pred.prob_single.png", plot = p4b, width = 9, height = 9)
 
 
 ################################################################################
@@ -175,8 +180,8 @@ p5  <-
     xlab("Seed mass (g)") +
     theme_Publication()
 
-ggsave(filename= "figures/SSL_all_pred_prob.pdf", plot = p5, width = 9, device=cairo_pdf)
-ggsave(filename= "figures/SSL_all_pred.prob.png", plot = p5, width = 9)
+ggsave(filename= "figures/SSL_all_pred_prob_glm.pdf", plot = p5, width = 9, height = 9, device=cairo_pdf)
+ggsave(filename= "figures/SSL_all_pred.prob_glm.png", plot = p5, width = 9, height = 9)
 
 
 ################################################################################
@@ -185,9 +190,11 @@ ggsave(filename= "figures/SSL_all_pred.prob.png", plot = p5, width = 9)
 ## In separated panels
 p6a <-
     ab.sp.rsl %>%
-    mutate(height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
+    mutate(height.class = ifelse(height <= median.Hloc,
+                                 paste0("Tree Height < ", median.Hloc, " m"),
                                  paste0("Tree Height > ", median.Hloc, " m")),
-           freq.class = ifelse(freq <= median.freq, paste0("Adult Frequency < ", median.freq),
+           freq.class = ifelse(freq <= median.freq,
+                               paste0("Adult Frequency < ", median.freq),
                                paste0("Adult Frequency > ", median.freq))) %>%
     ggplot(aes(mass, tsl.mean)) +
     geom_point(size=2) +
@@ -197,16 +204,18 @@ p6a <-
     facet_grid(height.class ~ freq.class) +
     scale_x_log10() +
     theme_bw() +
-    ylab("SSL") +
+    ylab("TSL") +
     xlab("Seed mass (g)") +
     facet_grid(height.class ~ freq.class) +
     theme_Publication()
 
 ## In a single panel
 ab.sp.rsl %<>%
-    mutate(height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
+    mutate(height.class = ifelse(height <= median.Hloc,
+                                 paste0("Tree Height < ", median.Hloc, " m"),
                                  paste0("Tree Height > ", median.Hloc, " m")),
-           freq.class = ifelse(freq <= median.freq, paste0("Adult Frequency < ", median.freq),
+           freq.class = ifelse(freq <= median.freq,
+                               paste0("Adult Frequency < ", median.freq),
                                paste0("Adult Frequency > ", median.freq)),
            classe = paste(height.class,freq.class, sep =" , "))
                       
@@ -225,10 +234,10 @@ p6b <-
     theme(legend.position = c(0.75, 0.25), legend.title = element_blank(), legend.direction = "vertical")
 
 
-ggsave(filename= "figures/TSL_pred_prob.pdf", plot = p6a, width = 9, device=cairo_pdf)
-ggsave(filename= "figures/TSL_pred.prob.png", plot = p6a, width = 9)
-ggsave(filename= "figures/TSL_pred_prob_single.pdf", plot = p6b, width = 9, device=cairo_pdf)
-ggsave(filename= "figures/TSL_pred.prob_single.png", plot = p6b, width = 9)
+ggsave(filename= "figures/TSL_pred_prob.pdf", plot = p6a, width = 9, height = 9, device=cairo_pdf)
+ggsave(filename= "figures/TSL_pred.prob.png", plot = p6a, width = 9, height = 9)
+ggsave(filename= "figures/TSL_pred_prob_single.pdf", plot = p6b, width = 9, height = 9, device=cairo_pdf)
+ggsave(filename= "figures/TSL_pred.prob_single.png", plot = p6b, width = 9, height = 9)
 
 ################################################################################
 ## SSL Predicted by glms and observed
@@ -244,8 +253,8 @@ p7  <-
     xlab("Seed mass (g)") +
     theme_Publication()
 
-ggsave(filename= "figures/TSL_all_pred_prob.pdf", plot = p7, width = 9, device=cairo_pdf)
-ggsave(filename= "figures/TSL_all_pred.prob.png", plot = p7, width = 9)
+ggsave(filename= "figures/TSL_all_pred_prob_glm.pdf", plot = p7, width = 9, height = 9, device=cairo_pdf)
+ggsave(filename= "figures/TSL_all_pred.prob_glm.png", plot = p7, width = 9, height = 9)
 
 ################################################################################
 ## TSL x SSL relationship
@@ -270,9 +279,11 @@ p8 <-
     tmp1 %>%
     ggplot(aes(ssl, tsl, label = sp.i)) +
     geom_point() +
-    geom_text_repel(alpha =.3, size = 3) +
+    geom_text_repel(alpha =.3, size = 3, max.overlaps = 20) +
     xlab("SSL") +
     ylab("TSL") +
+    xlim(0,1.05) +
+    ylim(0,1.05) +
     theme_Publication()
 ## All points and all years (a bit messy)
 p8a <- p8 + facet_wrap(~year, nrow=2)
@@ -282,9 +293,9 @@ p8b <- p8 %+% filter(tmp1, !dupl) + facet_wrap(~year, nrow=2)
 p8c <- p8 %+% filter(tmp1, year == "Pooled")
 
 
-ggsave(filename= "figures/TSLxSSL_all_spp.pdf", plot = p8a, width = 9, device=cairo_pdf)
-ggsave(filename= "figures/TSLxSSL_all_spp.png", plot = p8a, width = 9)
-ggsave(filename= "figures/TSLxSSL_ommit_overlaps.pdf", plot = p8b, device=cairo_pdf)
-ggsave(filename= "figures/TSLxSSL_ommit_overlaps.png", plot = p8b)
-ggsave(filename= "figures/TSLxSSL_pooled.pdf", plot = p8c, device=cairo_pdf)
-ggsave(filename= "figures/TSLxSSL_pooled.png", plot = p8c)
+ggsave(filename= "figures/TSLxSSL_all_spp.pdf", plot = p8a, width = 9, height = 9, device=cairo_pdf)
+ggsave(filename= "figures/TSLxSSL_all_spp.png", plot = p8a, width = 9, height = 9)
+ggsave(filename= "figures/TSLxSSL_ommit_overlaps.pdf", plot = p8b, width = 9, height = 9, device=cairo_pdf)
+ggsave(filename= "figures/TSLxSSL_ommit_overlaps.png", width = 9, height = 9, plot = p8b)
+ggsave(filename= "figures/TSLxSSL_pooled.pdf", plot = p8c, width = 9, height = 9, device=cairo_pdf)
+ggsave(filename= "figures/TSLxSSL_pooled.png", width = 9, height = 9, plot = p8c)

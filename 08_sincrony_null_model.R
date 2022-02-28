@@ -151,9 +151,9 @@ hist(all.bray[lower.tri(all.bray)])
 abline(v = dist.med(all.bray, FUN= "median"))
 abline(v = dist.med(all.bray, FUN= "mean"), col ="blue")
 
-hist(yr1.bray)
-hist(yr2.bray)
-hist(y3.bray)
+## hist(yr1.bray)
+## hist(yr2.bray)
+## hist(y3.bray)
 
 ## Density plots of null distributions and observed values
 p <- all.null.dmed %>%

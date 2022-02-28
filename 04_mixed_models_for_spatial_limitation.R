@@ -5,7 +5,7 @@ library(magrittr)
 library(ggplot2)
 library(lme4)
 library(bbmle)
-library(rptR)
+## library(rptR)
 library(MuMIn)
 library(rmcorr)
 library(effects)
@@ -13,7 +13,7 @@ library(merTools)
 library(parallel)
 library(car)
 source("funcoes.R")
-
+source("01_dataprep.R")
 
 ################################################################################
 ## Mixed-effect models for spatial limitation
@@ -118,7 +118,7 @@ ssl.pred %<>%
            pupper = ilogit(upper),
            height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
                                  paste0("Tree Height > ", median.Hloc, " m")),
-           freq.class = ifelse(freq <= median.freq, paste0("Occupancy < ", median.freq), paste0("Occupancy > ", median.freq)),
+           freq.class = ifelse(freq <= median.freq, paste0("Adult Frequency < ", median.freq), paste0("Adult Frequency > ", median.freq)),
            )
 
 ## Plot: observed and predicted values with CI's for fixed effects and fixed + random effects
@@ -126,8 +126,10 @@ ssl.pred %<>%
 ## of each group depicted in panels
 p1 <-
     ab.sp.rsl %>%
-    mutate(height.class = ifelse(height <= median.Hloc, paste0("Height < ", median.Hloc), paste0("Height > ", median.Hloc)),
-           freq.class = ifelse(freq <= median.freq, paste0("Freq < ", median.freq), paste0("Freq > ", median.freq))) %>%
+    mutate(height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
+                                 paste0("Tree Height > ", median.Hloc, " m")),
+           freq.class = ifelse(freq <= median.freq, paste0("Adult Frequency < ", median.freq),
+                               paste0("Adult Frequency > ", median.freq))) %>%
     ggplot(aes(mass, ssl.mean)) +
     geom_point(aes(color=species), size=2) +
     geom_linerange(aes(ymin=ssl.min, ymax = ssl.max, color=species)) +
@@ -142,8 +144,12 @@ p1
 ## Same plot in logit scale
 p2 <- 
     ab.sp.rsl %>%
-    mutate(height.class = ifelse(height <= median.Hloc, paste("Height < ", median.Hloc), paste("Height > ", median.Hloc)),
-           freq.class = ifelse(freq <= median.freq, paste("Freq < ", median.freq), paste("Freq > ", median.freq))) %>%
+    mutate(height.class = ifelse(height <= median.Hloc,
+                                 paste0("Tree Height < ", median.Hloc, " m"),
+                                 paste0("Tree Height > ", median.Hloc, " m")),
+           freq.class = ifelse(freq <= median.freq,
+                               paste0("Adult Frequency < ", median.freq),
+                               paste0("Adult Frequency > ", median.freq))) %>%
     ggplot(aes(mass, l.ssl.mean)) +
     geom_point(aes(color=species), size=2) +
     geom_linerange(aes(ymin= l.ssl.upper, ymax = l.ssl.lower, color=species)) +
@@ -152,7 +158,7 @@ p2 <-
     facet_grid(height.class ~ freq.class) +
     scale_x_log10() +
     theme_bw() +
-    ylab("Logito SSL")
+    ylab("Logit SSL")
 p2
 
 ## Only the predicted lines, to evaluate effects
@@ -165,7 +171,7 @@ p3 <-
     geom_ribbon(aes(ymin = lower, ymax =upper, fill = classe), alpha =0.1) +
     scale_x_log10() +
     theme_bw()+
-    ylab("SSL previsto (logito)")
+    ylab("Predicted SSL (logit)")
 p3
 
 ## Probability scale
@@ -177,7 +183,7 @@ p4 <-
     geom_ribbon(aes(ymin = plower, ymax =pupper, fill = classe), alpha =0.1) +
     scale_x_log10() +
     theme_bw() +
-    ylab("SSL previsto")
+    ylab("Predicted SSL")
 p4
     
 ## All plots

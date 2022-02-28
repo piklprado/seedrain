@@ -5,7 +5,7 @@ library(magrittr)
 library(ggplot2)
 library(lme4)
 library(bbmle)
-library(rptR)
+## library(rptR)
 library(MuMIn)
 library(rmcorr)
 library(effects)
@@ -114,9 +114,12 @@ tsl.pred %<>%
            pfit = ilogit(fit),
            plower = ilogit(lower),
            pupper = ilogit(upper),
-           height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
+           height.class = ifelse(height <= median.Hloc,
+                                 paste0("Tree Height < ", median.Hloc, " m"),
                                  paste0("Tree Height > ", median.Hloc, " m")),
-           freq.class = ifelse(freq <= median.freq, paste0("Occupancy < ", median.freq), paste0("Occupancy > ", median.freq)),
+           freq.class = ifelse(freq <= median.freq,
+                               paste0("Adult Frequency < ", median.freq),
+                               paste0("Adult Frequency > ", median.freq)),
            )
 
 ## Plot: observed and predicted values with CI's for fixed effects and fixed + random effects
@@ -124,9 +127,12 @@ tsl.pred %<>%
 ## of each group depicted in panels
 p1 <-
     ab.sp.rsl %>%
-    mutate(height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
+    mutate(height.class = ifelse(height <= median.Hloc,
+                                 paste0("Tree Height < ", median.Hloc, " m"),
                                  paste0("Tree Height > ", median.Hloc, " m")),
-           freq.class = ifelse(freq <= median.freq, paste0("Occupancy < ", median.freq), paste0("Occupancy > ", median.freq))) %>%
+           freq.class = ifelse(freq <= median.freq,
+                               paste0("Adult Frequency < ", median.freq),
+                               paste0("Adult Frequency > ", median.freq))) %>%
     ggplot(aes(mass, tsl.mean)) +
     geom_point(aes(color=species), size=2) +
     geom_linerange(aes(ymin=tsl.min, ymax = tsl.max, color=species)) +
@@ -141,9 +147,12 @@ p1
 ## Logit scale
 p2 <- 
     ab.sp.rsl %>%
-    mutate(height.class = ifelse(height <= median.Hloc, paste0("Tree Height < ", median.Hloc, " m"),
-                                 paste0("Height > ", median.Hloc, " m")),
-           freq.class = ifelse(freq <= median.freq, paste0("Occupancy < ", median.freq), paste0("Occupancy > ", median.freq))) %>%
+    mutate(height.class = ifelse(height <= median.Hloc,
+                                 paste0("Tree Height < ", median.Hloc, " m"),
+                                 paste0("Tree Height > ", median.Hloc, " m")),
+           freq.class = ifelse(freq <= median.freq,
+                               paste0("Adult Frequency < ", median.freq),
+                               paste0("Adult Frequency > ", median.freq))) %>%
     ggplot(aes(mass, l.tsl.mean)) +
     geom_point(aes(color=species), size=2) +
     geom_linerange(aes(ymin= l.tsl.upper, ymax = l.tsl.lower, color=species)) +
@@ -152,7 +161,7 @@ p2 <-
     facet_grid(height.class ~ freq.class) +
     scale_x_log10() +
     theme_bw() +
-    ylab("Logito TSL")
+    ylab("Logit TSL")
 p2
 
 ## Only the predicted lines, to evaluate effects
@@ -164,7 +173,7 @@ p3 <- tsl.pred %>%
     geom_ribbon(aes(ymin = lower, ymax =upper, fill = classe), alpha =0.1) +
     scale_x_log10() +
     theme_bw()+
-    ylab("TSL previsto (logito)")
+    ylab("Predicted TSL (logit)")
 p3
 
 ## Probability scale
@@ -175,7 +184,7 @@ p4 <- tsl.pred %>%
     geom_ribbon(aes(ymin = plower, ymax =pupper, fill = classe), alpha =0.1) +
     scale_x_log10() +
     theme_bw() +
-    ylab("TSL previsto")
+    ylab("Predicted TSL")
 p4
 
 ## All plots 

@@ -4,6 +4,7 @@
 \usepackage{siunitx}
 \usepackage{placeins}
 \usepackage{lineno}
+\usepackage{graphicx}
 \newcolumntype{d}{S[input-symbols = ()]}
 
 \renewcommand{\thefigure}{S-\arabic{figure}}
@@ -62,27 +63,66 @@ was also assessed by two response variables: (i) proportion of
 sampling occasions (months) when seeds of each species were not
 recorded in some trap, and (ii) proportion of the twelve months of the
 year when seeds of each species were not recorded over the three
-sampling years.
+sampling years. As all response variables are proportions, we used
+generalized binomial models.
 
 Response variables (i) have three values for each species, which
-correspond to the proportions of unoccupied traps or occasions each
-sampling year. We thus included in the model for these responses a
-random effect for plant species. For
-response variables (ii) we used linear models only with the fixed
-effects, as there is no repeated responses for each plant species. As
-all response variables are proportions, we used generalized binomial
-models.
+correspond to the proportions of unoccupied traps or unnocupied
+occasions each sampling year. We thus included in the model for these
+responses a random effect for plant species. Plots with the values of
+these responses and values predicted by the models are in the main
+text. For response variables (ii) we used linear models only with the fixed
+effects, as there is no repeated responses for each plant species.
+Figures~\ref{fig:SSL_glm}~and~\ref{fig:TSL_glm} show the values of the responses
+(ii) and the values predicted by the models. 
 
 \FloatBarrier
 
-\input{tsl_mixed.tex}
-
 \input{ssl_mixed.tex}
 
-\input{tsl_glm.tex}
+\input{tsl_mixed.tex}
 
 \input{ssl_glm.tex}
 
+\input{tsl_glm.tex}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/SSL_all_pred_prob_glm}
+  \caption{Relationship among spatial seed limitation pooled over
+    years (SSL), seed mass, tree height, and frequency of adults, as
+    predicted by the glm average model (Table~S-3). For species with
+    frequency lower than median value (0.3) the relationship is showed
+    in graphs in the left column, and for those with greater
+    frequency, in the right column. For species with tree height lower
+    than median value (15 m) the relationship is showed in upper
+    graphs, and for those with greater height in bottom
+    graphs. Regression lines are predicted values by the average model
+    using the midpoint of the height and frequency class in each
+    panel. Gray shadows are 95\% prediction interval of the average
+    model. Points are observed values of SSL (pooled over the 3 years)
+    and seed mass for each species. Note the log scale for seed mass.}
+  \label{fig:SSL_glm}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/TSL_all_pred_prob_glm}
+  \caption{Relationship among temporal seed limitation pooled over
+    years (TSL), seed mass, tree height, and frequency of adults, as
+    predicted by the glm average model (Table~S-4). For
+    species with frequency lower than median value (0.3) the
+    relationship is showed in graphs in the left column, and for those
+    with greater frequency, in the right column. For species with tree
+    height lower than median value (15 m) the relationship is showed
+    in upper graphs, and for those with greater height in bottom
+    graphs. Regression lines are predicted values by the average model
+    using the midpoint of the height and frequency class in each
+    panel. Gray shadows are 95\% prediction interval of the average
+    model. Points are observed values of SSL (pooled over the 3 years)
+    and seed mass for each species. Note the log scale for seed mass.}
+  \label{fig:TSL_glm}
+\end{figure}
 
 \bibliographystyle{plain}
 \bibliography{suppl}
