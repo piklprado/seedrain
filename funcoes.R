@@ -1,22 +1,19 @@
-#' funcao logito
+#' logit function
 #'
 logito <- function(x, max =1, delta =0){
     log(x/(max-x))
 }
 
-#' Inverso da funcao logito
-#' @param x logito 
+#' Inverse logit 
+#' @param x logit 
 ilogit <- function(x)
     exp(x)/(1+exp(x))
 
-#' Estima intervalos de previsao de modelo medio com efeitos mistos
-#' @param lista.modelos lista de modelos dos quais se deseja fazer o
-#'     modelo medio
-#' @param newdata planilha com os valores das preditoras para os quais
-#'     se deseja fazer as previsoes (veja argumento newdata em
-#'     predict)
-#' @param nsim total de simulacoes a fazer
-#' @param ... outros argumentos a passar para a função bootMer
+#' Prediction interval for average model from glmms
+#' @param lista.modelos lis of model objects that make the average model
+#' @param newdata new data to make the predictions
+#' @param nsim number of simulations
+#' @param ... further arguments to the bootMer function
 ic.bootMer <- function(lista.modelos, newdata, nsim = 1000, ...){
     pesos <- AICctab(lista.modelos, weights = TRUE, mnames = names(lista.modelos))$weight
     nsims <- round(nsim * pesos)
@@ -38,10 +35,8 @@ seed.rand <- function(x){
     as.numeric(table(indexes))
 }
 
-#' Aleatorização de series temporais pelo algoritmo Rosario
-#' @details aplica a um vetor a permutação circular "rosario", criada
-#'     para séries temporais
-#' @param x um vetor
+#' Shuffles times series using Rosario null model
+#' @param x a vector of values in temporal sequence
 #' @references Castro‐Arellano, I., Lacher Jr, T. E., Willig, M. R., &
 #'     Rangel, T. F. (2010). Assessment of assemblage‐wide temporal
 #'     niche segregation using null models. Methods in ecology and
@@ -57,26 +52,26 @@ rosario <- function(x){
     return(x[rand.ind])
     }
 
-#' Aleatoriza a matriz de meses x especies e devolve as matrizes de
-#' similaridade
-#' @param dados: matriz ou dataframe apenas com as abundancias das
-#'     especies (colunas) por meses(linhas)
-#' @param estrato vetor com a variavel para estratificar a
-#'     randomização. O conjunto de dados será subdividido pelos níveis
-#'     destes estrato, e então a aleatorização aplicada a cada uma
-#'     destas subdivisões. Se ausente, a aleatorização será aplicada
-#'     ao conjunto de dados sem dividí-lo.
-#' @param nrep número de repetições da randomização
-#' @param FUN algoritmo de modelos nulo a utilizar. "seed,rand"
-#'     distribui sementes individualmente e independentemente de cada
-#'     espécies entre os meses. "sample" mantém o número de sementes
-#'     em cada mês de cada espécie, mas embaralha os meses. "rosario"
-#'     mantém o total o número de sementes por mês e a sucessão de
-#'     valores ao longo da série temporal, apenas alterando a posição
-#'     da série ao longo do tempo (Castro-Arellano et al 2010)
-#' @return um array de dimensão [nrow(dados), ncol(dados), nrep]; com
-#'     matrizes de dados cujas colunas forma permutadas pelo algoritmo
-#'     rosario, com ou sem estratificação.
+#' Shuffles a matrix of month x species and outuputs similarities
+#' matrices
+#' @param dados: matrix or dataframe with abundances of species
+#'     (columns) by mnonths (rows)
+#' @param estrato vector with the variable to stratify the
+#'     randomization. The dataset will be subdivided by the levels of
+#'     this factor, and then randomization is applied to each of these
+#'     subdivisions. If absent, randomization will be applied to the
+#'     dataset without splitting it.
+#' @param nrep number of repetitions of the randomization
+#' @param FUN null model to be used. "seed.rand" distributes seeds
+#'     individually and independently of each species between
+#'     months. "sample" keeps the number of seeds in each month of
+#'     each species, but shuffles the months. "rosario" keeps the
+#'     total number of seeds per month and the succession of values
+#'     ​​over the time series, only changing the position of the series
+#'     over time (Castro-Arellano et al 2010)
+#' @return an array with dimension [nrow(data), ncol(data), nrep];
+#'     with data matrices whose columns were permuted by the null
+#'     model, with or without stratification.
 #' @references Castro‐Arellano, I., Lacher Jr, T. E., Willig, M. R., &
 #'     Rangel, T. F. (2010). Assessment of assemblage‐wide temporal
 #'     niche segregation using null models. Methods in ecology and
@@ -95,9 +90,9 @@ null.model <- function(dados, estrato, nrep = 100, FUN = c("seed.rand", "sample"
 
 
 
-#' Distancias ao n-esimo vizinho mais próximo de uma matriz de distâncias
-#' @param x matriz de distâncias
-#' @return data.frame com ranking do vizinho, distância média e limites do IC a 95%
+#' Distances to the n-th nearest neigbor
+#' @param x distance matrix
+#' @return a data frame with the n-th distance ranking of each neighbor and the respective distance.
 dvmp <- function(x){
     m1 <- apply(x, 2, sort)[-1,]
     data.frame(ranking = 1:nrow(m1),
@@ -130,7 +125,6 @@ dist.med <- function(x, FUN = "mean"){
 }
 
 #' Auxiliary function: relative abundance
-## Funcao para aplicar a cada ano: abundancia relativa
 ab.rel <- function(x){
     if(all(x==0))
         x
