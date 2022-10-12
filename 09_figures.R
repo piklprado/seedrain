@@ -90,6 +90,9 @@ p12 <- arrangeGrob(p1, p2, ncol = 2, nrow = 1)
 ggsave(filename= "figures/frequency_boxplots.pdf", plot = p12, width =8, height = 4, device=cairo_pdf)
 ggsave(filename= "figures/frequency_boxplots.png", plot = p12, width =8, height = 4)
 
+ggsave(filename= "figures/frequency_boxplots.tiff", plot = p12, width =8, height = 4, dpi=300)
+ggsave(filename= "figures/frequency_boxplots.eps", plot = p12, width =8, height = 4, device=cairo_ps)
+
 
 ################################################################################
 ## Synchrony null models limits x observed values
@@ -112,6 +115,8 @@ p3 <-
 ggsave(filename= "figures/null_models_synchrony.pdf", plot = p3, width = 9, height = 7.5, device=cairo_pdf)
 ggsave(filename= "figures/null_models_synchrony.png", plot = p3, width = 9, height = 7.5)
 
+ggsave(filename= "figures/null_models_synchrony.eps", plot = p3, width = 9, height = 7.5, device=cairo_ps)
+ggsave(filename= "figures/null_models_synchrony.tiff", plot = p3, width = 9, height = 7.5, dpi = 300)
 
 ################################################################################
 ## SSL predicted by glmms and observed
@@ -165,6 +170,11 @@ ggsave(filename= "figures/SSL_pred.prob.png", plot = p4a, width = 9, height = 9)
 ggsave(filename= "figures/SSL_pred_prob_single.pdf", plot = p4b, width = 9, height = 9, device=cairo_pdf)
 ggsave(filename= "figures/SSL_pred.prob_single.png", plot = p4b, width = 9, height = 9)
 
+ggsave(filename= "figures/SSL_pred_prob.eps", plot = p4a, width = 9, height = 9, device=cairo_ps)
+ggsave(filename= "figures/SSL_pred.prob.tiff", plot = p4a, width = 9, height = 9, dpi = 300)
+ggsave(filename= "figures/SSL_pred_prob_single.eps", plot = p4b, width = 9, height = 9, device=cairo_ps)
+ggsave(filename= "figures/SSL_pred.prob_single.tiff", plot = p4b, width = 9, height = 9, dpi = 300)
+
 
 ################################################################################
 ## SSL Predicted by glms and observed
@@ -182,6 +192,9 @@ p5  <-
 
 ggsave(filename= "figures/SSL_all_pred_prob_glm.pdf", plot = p5, width = 9, height = 9, device=cairo_pdf)
 ggsave(filename= "figures/SSL_all_pred.prob_glm.png", plot = p5, width = 9, height = 9)
+
+ggsave(filename= "figures/SSL_all_pred_prob_glm.eps", plot = p5, width = 9, height = 9, device=cairo_ps)
+ggsave(filename= "figures/SSL_all_pred.prob_glm.png", plot = p5, width = 9, height = 9, dpi = 300)
 
 
 ################################################################################
@@ -239,6 +252,11 @@ ggsave(filename= "figures/TSL_pred.prob.png", plot = p6a, width = 9, height = 9)
 ggsave(filename= "figures/TSL_pred_prob_single.pdf", plot = p6b, width = 9, height = 9, device=cairo_pdf)
 ggsave(filename= "figures/TSL_pred.prob_single.png", plot = p6b, width = 9, height = 9)
 
+ggsave(filename= "figures/TSL_pred_prob.eps", plot = p6a, width = 9, height = 9, device=cairo_ps)
+ggsave(filename= "figures/TSL_pred.prob.tiff", plot = p6a, width = 9, height = 9, dpi = 300)
+ggsave(filename= "figures/TSL_pred_prob_single.eps", plot = p6b, width = 9, height = 9, device=cairo_ps)
+ggsave(filename= "figures/TSL_pred.prob_single.tiff", plot = p6b, width = 9, height = 9, dpi = 300)
+
 ################################################################################
 ## SSL Predicted by glms and observed
 ################################################################################
@@ -255,6 +273,9 @@ p7  <-
 
 ggsave(filename= "figures/TSL_all_pred_prob_glm.pdf", plot = p7, width = 9, height = 9, device=cairo_pdf)
 ggsave(filename= "figures/TSL_all_pred.prob_glm.png", plot = p7, width = 9, height = 9)
+
+ggsave(filename= "figures/TSL_all_pred_prob_glm.eps", plot = p7, width = 9, height = 9, device=cairo_ps)
+ggsave(filename= "figures/TSL_all_pred.prob_glm.tiff", plot = p7, width = 9, height = 9, dpi = 300)
 
 ################################################################################
 ## TSL x SSL relationship
@@ -299,3 +320,10 @@ ggsave(filename= "figures/TSLxSSL_ommit_overlaps.pdf", plot = p8b, width = 9, he
 ggsave(filename= "figures/TSLxSSL_ommit_overlaps.png", width = 9, height = 9, plot = p8b)
 ggsave(filename= "figures/TSLxSSL_pooled.pdf", plot = p8c, width = 9, height = 9, device=cairo_pdf)
 ggsave(filename= "figures/TSLxSSL_pooled.png", width = 9, height = 9, plot = p8c)
+
+ggsave(filename= "figures/TSLxSSL_all_spp.eps", plot = p8a, width = 9, height = 9, device=cairo_ps)
+ggsave(filename= "figures/TSLxSSL_all_spp.tiff", plot = p8a, width = 9, height = 9, dpi = 300)
+ggsave(filename= "figures/TSLxSSL_ommit_overlaps.eps", plot = p8b, width = 9, height = 9, device=cairo_ps)
+ggsave(filename= "figures/TSLxSSL_ommit_overlaps.tiff", width = 9, height = 9, plot = p8b, dpi = 300)
+ggsave(filename= "figures/TSLxSSL_pooled.eps", plot = p8c, width = 9, height = 9, device=cairo_ps)
+ggsave(filename= "figures/TSLxSSL_pooled.tiff", width = 9, height = 9, plot = p8c, dpi = 300)

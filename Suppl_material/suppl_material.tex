@@ -1,12 +1,13 @@
-\documentclass{article}
+\documentclass[A4]{article}
 \usepackage[T1]{fontenc}
 \usepackage{booktabs}
 \usepackage{siunitx}
-\usepackage{placeins}
+\usepackage[section]{placeins}
 \usepackage{lineno}
 \usepackage{graphicx}
 \usepackage{url}
 \usepackage{authblk}
+\usepackage[margin=1in]{geometry}
 \newcolumntype{d}{S[input-symbols = ()]}
 
 \renewcommand{\thefigure}{S-\arabic{figure}}
@@ -22,6 +23,7 @@
 \title{Strong spatial and temporal limitations in seed arrival as
   complementary mechanisms for species coexistence in a tropical
   Atlantic coastal forest \\ \ \\
+  \emph{Plant Ecology} \\ \ \\
   \Large Supplementary Information} 
 
 \author[1,2]{Leticia B. Zimback}
@@ -33,21 +35,50 @@
 \affil[1]{Secretaria do Verde e Meio Ambiente da Prefeitura da Cidade de São Paulo, Brazil}
 \affil[2]{Instituto de Biociências, Universidade de São Paulo, Brazil}
 \affil[3]{Instituto Florestal do Estado de São Paulo, Brazil}
-\affil[4]{Corresponding author, \texttt{amzmartini@ib.usp.br}}
+\affil[4]{Corresponding author, \texttt{amzmartini@usp.br}}
 
 
-\date{Submitted to \emph{Plant Ecology}}
+\date{\today}
 
 \maketitle
 
 This appendix provides additional information on the statistical
-methods used in the paper and also some supplementary analyses. All
-analyses were performed in the R environment \cite{Rcore}.
-R codes and the dataset are available at
+methods used in the paper and also some supplementary figures and
+analyses. All analyses were performed in the R environment
+\cite{Rcore}.  R codes and the dataset are available at
 \url{https://github.com/piklprado/seedrain}.
 
 
-\section*{Linear models for spatial and temporal seed limitation}
+\section*{Climate in the study area}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=0.5\textwidth]{../figures/climate_diagram}
+  \caption{Climatic diagram from a historical series for the
+    Caraguatatuba region, São Paulo State, Brazil. Bars show average
+    monthly precipitation from 1943 to 2014 \cite{Santos2019}. Average
+    maximum and minimum monthly temperatures are represented by the
+    dashed and continuous lines, respectively (data from the last 30
+    years, \protect\url{https://www.climatempo.com.br/climatologia/796/caraguatatuba-sp})}
+  \label{fig:climate_diag}
+\end{figure}
+
+\section*{Spatial and temporal seed limitation}
+
+\subsection*{Descriptive statistics}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=0.65\textwidth]{../figures/frequency_boxplots.pdf}
+  \caption{Number of seed traps (left) and months (right) in which the
+    seeds of each of the 82 sampled species were recorded for the total
+    sampling period (36 months) pooled and for each year separately.}
+  \label{fig:freq_seeds}
+\end{figure}
+
+\FloatBarrier
+
+\subsection*{Linear models for spatial and temporal seed limitation}
 \label{sec:model-select-aver}
 
 In this section we report details of the statistical models used to
@@ -227,7 +258,7 @@ QAICc & \num{56.540} & \num{56.920} & \num{56.965} & \num{57.439} & \\
 
 \begin{figure}
   \centering
-  \includegraphics[width=\textwidth]{../figures/SSL_all_pred_prob_glm}
+  \includegraphics[width=0.5\textwidth]{../figures/SSL_all_pred_prob_glm}
   \caption{Relationship among spatial seed limitation pooled over
     years (SSL), seed mass, tree height, and frequency of adults, as
     predicted by the glm average model (Table~\ref{tab:TSL_glm}). For species with
@@ -301,7 +332,7 @@ QAICc & \num{62.212} & \num{63.548} & \num{63.812} & \\
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=\textwidth]{../figures/TSL_all_pred_prob_glm}
+  \includegraphics[width=0.5\textwidth]{../figures/TSL_all_pred_prob_glm}
   \caption{Relationship among temporal seed limitation pooled over
     years (TSL), seed mass, tree height, and frequency of adults, as
     predicted by the glm average model (Table~\ref{tab:SSL_glm}). For
@@ -318,7 +349,7 @@ QAICc & \num{62.212} & \num{63.548} & \num{63.812} & \\
   \label{fig:TSL_glm}
 \end{figure}
 
-
+\FloatBarrier
 \section*{Circular statistics of temporal distribution of seeds}
 \label{sec:circ-stat-temp}
 
@@ -335,7 +366,7 @@ were performed with the circular R package \cite{circular}.
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=\textwidth]{../figures/circular_distribution}
+  \includegraphics[width=0.5\textwidth]{../figures/circular_distribution}
   \caption{Circular distribution of the mean number of seed species in
     each month. The lenght of each sector (month) is the average of
     the number of seed species recorded each month for the tree
