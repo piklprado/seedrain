@@ -1,6 +1,7 @@
 \documentclass[A4]{article}
 \usepackage[T1]{fontenc}
 \usepackage{booktabs}
+\usepackage{caption}
 \usepackage{siunitx}
 \usepackage[section]{placeins}
 \usepackage{lineno}
@@ -15,16 +16,21 @@
 \renewcommand{\theequation}{S-\arabic{equation}}
 \renewcommand{\thesection}{S-\arabic{section}}
 \renewcommand{\thelinenumber}{S-\arabic{linenumber}}
-\renewcommand{\thepage}{Supp.Mat. page \arabic{page}}
+\renewcommand{\thepage}{Online Resource page \arabic{page}}
 
 \begin{document}
+
+\captionsetup{
+    labelfont = bf,
+    textfont  = it
+  }
 
 
 \title{Strong spatial and temporal limitations in seed arrival as
   complementary mechanisms for species coexistence in a tropical
   Atlantic coastal forest \\ \ \\
-  \emph{Plant Ecology} \\ \ \\
-  \Large Supplementary Information} 
+  Published in \emph{Plant Ecology} \\ \ \\
+  \textbf{Online Resource 1}} 
 
 \author[1,2]{Leticia B. Zimback}
 \author[2]{Paulo I. Prado}
@@ -376,7 +382,7 @@ were performed with the circular R package \cite{circular}.
 
 \FloatBarrier
 
-\bibliographystyle{plain}
+\bibliographystyle{acm}
 \bibliography{suppl}
 
 

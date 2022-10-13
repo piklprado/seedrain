@@ -49,19 +49,26 @@ plot(sl.tl.rmcor)
 
 ## Pearson correlation between mean ssl and tsl
 cor(ab.sp.rsl[,c("ssl.mean", "tsl.mean")])
+cor.test(ab.sp.rsl$ssl.mean, ab.sp.rsl$tsl.mean)
 
 ## Pearson correlation each year
+## Year 1
 y1<-abundants%>%
     filter (year=="1")
 cor(y1$ssl, y1$tsl)
+cor.test(y1$ssl, y1$tsl)
 
+## Year2
 y2<-abundants%>%
     filter (year=="2")
 cor(y2$ssl, y2$tsl)
+cor.test(y2$ssl, y2$tsl)
 
+## Year 3
 y3<-abundants%>%
     filter (year=="3")
 cor(y3$ssl, y3$tsl)
+cor.test(y3$ssl, y3$tsl)
 
 ## Correlation for all species
 cor(tudo82spp$ssl_tot40, tudo82spp$tsl_tot12)
