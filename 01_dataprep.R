@@ -19,7 +19,7 @@ raw$zooc <- raw$syndr=="Zoocoria"
 
 ################################################################################
 ## Object "abundants": 
-## The 31 most abundant species ( species with at least 5 records)
+## The 31 most abundant species ( species with at least 5 seeds sampled)
 ################################################################################
 abundants <- raw[raw$most_abund,]
 ## Standard deviation of species variables (across species, n=31)

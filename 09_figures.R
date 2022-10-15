@@ -57,6 +57,172 @@ scale_colour_Publication <- function(...){
 
 }
 
+
+################################################################################
+## FIGURES FOR THE MAIN TEXT
+## (and some variants)
+################################################################################
+
+################################################################################
+## Fig.2 - Synchrony null models limits x observed values
+################################################################################
+p3 <-
+    ggplot(summary.dmed, aes(year, mean.ov)) +
+    geom_point(data = observed, aes(y = mean.ov, shape = "Observed"),
+               size = 3, position=position_nudge(x = -0.3)) +
+    geom_errorbar(aes(ymin = mean.ov.low, ymax = mean.ov.upp, color = by, lwd= by),
+                  position = position_dodge(width=0.2)) +
+    ylab("Mean temporal asynchrony (Bray Curtis)") +
+    xlab("") +
+    labs(color = "Null model:", shape = "", size = "Null model:", linetype = "Null model:") +
+    scale_color_manual(values = c("black",  "darkgrey", "lightgrey")) +
+    ##scale_linetype_manual(values = c("11","1","11")) +
+    scale_size_manual(values = c(1.5,1.5,1.5)) +
+    theme_Publication(base_size=16) +
+    theme(axis.text=element_text(size=14))+
+    theme(axis.title=element_text(size=15))
+
+## ggsave(filename= "figures/null_models_synchrony.pdf", plot = p3, width = 9, height = 7.5, device=cairo_pdf)
+## ggsave(filename= "figures/null_models_synchrony.png", plot = p3, width = 9, height = 7.5)
+## ggsave(filename= "figures/null_models_synchrony.eps", plot = p3, width = 9, height = 7.5, device=cairo_ps)
+## ggsave(filename= "figures/null_models_synchrony.tiff", plot = p3, width = 9, height = 7.5)
+
+ggsave(filename= "figures/figure_2.pdf", plot = p3, width = 9, height = 7.5, device=cairo_pdf)
+ggsave(filename= "figures/figure_2.png", plot = p3, width = 9, height = 7.5)
+ggsave(filename= "figures/figure_2.eps", plot = p3, width = 9, height = 7.5, device=cairo_ps)
+ggsave(filename= "figures/figure_2.tiff", plot = p3, width = 9, height = 7.5)
+
+################################################################################
+## Fig.3 - TSL x SSL relationship
+################################################################################
+## Joining data for each year and of pooled years
+tmp1 <-
+    abundants2 %>%
+    mutate(year = "Pooled", ssl = ssl_tot40, tsl = tsl_tot12) %>%
+    dplyr::select(species, sp.i, ssl, tsl, year) %>%
+    bind_rows(abundants[, c("species", "sp.i", "ssl", "tsl", "year")]) %>%
+    mutate(year = ifelse(grepl("Pooled", year), year, paste("Year",year))) %>%
+    arrange(year, ssl, tsl, sp.i)
+tmp1$dupl <- duplicated(tmp1[, c("year", "ssl", "tsl")])
+## For the figure caption of the 2nd plot below: Species that share the same point in each panel
+tmp1 %>%
+    group_by(year,ssl,tsl) %>%
+    summarise(N = n(), sigla = paste(sp.i, collapse =",")) %>%
+    filter(N>1) %>%
+    data.frame()
+## The plots
+p8 <-
+    tmp1 %>%
+    ggplot(aes(ssl, tsl, label = sp.i)) +
+    geom_point() +
+    geom_text_repel(alpha =.6, size = 3, max.overlaps = 25) +
+    xlab("SSL") +
+    ylab("TSL") +
+    xlim(0,1.05) +
+    ylim(0,1.05) +
+    theme_Publication(base_size=16) +
+    theme(axis.text=element_text(size=14))+
+    theme(axis.title=element_text(size=15))
+
+## All points and all years (a bit messy)
+p8a <- p8 + facet_wrap(~year, nrow=2)
+## select a single point and label for overlaps
+p8b <- p8 %+% filter(tmp1, !dupl) + facet_wrap(~year, nrow=2)
+## Only pooled year, all points
+p8c <- p8 %+% filter(tmp1, year == "Pooled")
+
+
+## ggsave(filename= "figures/TSLxSSL_all_spp.pdf", plot = p8a, width = 9, height = 9, device=cairo_pdf)
+## ggsave(filename= "figures/TSLxSSL_all_spp.png", plot = p8a, width = 9, height = 9)
+## ggsave(filename= "figures/TSLxSSL_all_spp.eps", plot = p8a, width = 9, height = 9, device=cairo_ps)
+## ggsave(filename= "figures/TSLxSSL_all_spp.tiff", plot = p8a, width = 9, height = 9)
+
+ggsave(filename= "figures/figure_3.pdf", plot = p8a, width = 9, height = 9, device=cairo_pdf)
+ggsave(filename= "figures/figure_3.png", plot = p8a, width = 9, height = 9)
+ggsave(filename= "figures/figure_3.eps", plot = p8a, width = 9, height = 9, device=cairo_ps)
+ggsave(filename= "figures/figure_3.tiff", plot = p8a, width = 9, height = 9)
+
+## Alternative figures
+ggsave(filename= "figures/TSLxSSL_ommit_overlaps.pdf", plot = p8b, width = 9, height = 9, device=cairo_pdf)
+ggsave(filename= "figures/TSLxSSL_ommit_overlaps.png", width = 9, height = 9, plot = p8b)
+ggsave(filename= "figures/TSLxSSL_pooled.pdf", plot = p8c, width = 9, height = 9, device=cairo_pdf)
+ggsave(filename= "figures/TSLxSSL_pooled.png", width = 9, height = 9, plot = p8c)
+ggsave(filename= "figures/TSLxSSL_ommit_overlaps.eps", plot = p8b, width = 9, height = 9, device=cairo_ps)
+ggsave(filename= "figures/TSLxSSL_ommit_overlaps.tiff", width = 9, height = 9, plot = p8b)
+ggsave(filename= "figures/TSLxSSL_pooled.eps", plot = p8c, width = 9, height = 9, device=cairo_ps)
+ggsave(filename= "figures/TSLxSSL_pooled.tiff", width = 9, height = 9, plot = p8c)
+
+
+################################################################################
+## Fig.4 - SSL predicted by glmms and observed
+################################################################################
+## In separated panels
+p4a <-
+    ab.sp.rsl %>%
+    mutate(height.class = ifelse(height <= median.Hloc,
+                                 paste0("Tree Height < ", median.Hloc, " m"),
+                                 paste0("Tree Height > ", median.Hloc, " m")),
+           freq.class = ifelse(freq <= median.freq,
+                               paste0("Adult Frequency < ", median.freq),
+                               paste0("Adult Frequency > ", median.freq))) %>%
+    ggplot(aes(mass, ssl.mean)) +
+    geom_ribbon(aes(y = pfit, ymin = plower, ymax = pupper), data = ssl.pred, fill="gray", alpha=0.75) +
+    geom_point(size=2) +
+    geom_linerange(aes(ymin=ssl.min, ymax = ssl.max)) +
+    geom_line(aes(y = pfit), data = ssl.pred)+
+    scale_x_log10(breaks = c(0.001, 0.01, 0.1, 1), labels = c("0.001","0.01", "0.1", "1") ) +
+    ylab("SSL") +
+    xlab("Seed mass (g)") +
+    facet_grid(height.class ~ freq.class) +
+    theme_Publication(base_size=16) +
+    theme(axis.text=element_text(size=14))+
+    theme(axis.title=element_text(size=15))
+
+## In a single panel
+ab.sp.rsl %<>%
+    mutate(height.class = ifelse(height <= median.Hloc,
+                                 paste0("Tree Height < ", median.Hloc, " m"),
+                                 paste0("Tree Height > ", median.Hloc, " m")),
+           freq.class = ifelse(freq <= median.freq,
+                               paste0("Adult Frequency < ", median.freq),
+                               paste0("Adult Frequency > ", median.freq)),
+           classe = paste(height.class,freq.class, sep =" , "))
+                      
+p4b <-
+    ssl.pred %>%
+    mutate(classe = paste(height.class,freq.class, sep =" , ")) %>%
+    ggplot(aes(x=mass)) +
+    geom_point(data = ab.sp.rsl, aes(y=ssl.mean, color = classe), size=2) +
+    geom_line(aes(y=pfit, color = classe), size=1.2) +
+    geom_ribbon(aes(ymin = plower, ymax =pupper, fill = classe), alpha =0.1) +
+    scale_x_log10() +
+    theme_bw() +
+    ylab("SSL")+
+    xlab("Seed mass (g)") +
+    theme_Publication() +
+    theme(legend.position = c(0.75, 0.25), legend.title = element_blank(), legend.direction = "vertical")
+
+
+## ggsave(filename= "figures/SSL_pred_prob.pdf", plot = p4a, width = 9, height = 9, device=cairo_pdf)
+## ggsave(filename= "figures/SSL_pred.prob.png", plot = p4a, width = 9, height = 9)
+## ggsave(filename= "figures/SSL_pred_prob.eps", plot = p4a, width = 9, height = 9, device=cairo_ps)
+## ggsave(filename= "figures/SSL_pred.prob.tiff", plot = p4a, width = 9, height = 9)
+
+ggsave(filename= "figures/figure_4.pdf", plot = p4a, width = 9, height = 9, device=cairo_pdf)
+ggsave(filename= "figures/figure_4.png", plot = p4a, width = 9, height = 9)
+ggsave(filename= "figures/figure_4.eps", plot = p4a, width = 9, height = 9, device=cairo_ps)
+ggsave(filename= "figures/figure_4.tiff", plot = p4a, width = 9, height = 9, dpi = 400)
+
+## Alternative figures
+ggsave(filename= "figures/SSL_pred_prob_single.eps", plot = p4b, width = 9, height = 9, device=cairo_ps)
+ggsave(filename= "figures/SSL_pred.prob_single.tiff", plot = p4b, width = 9, height = 9)
+ggsave(filename= "figures/SSL_pred_prob_single.pdf", plot = p4b, width = 9, height = 9, device=cairo_pdf)
+ggsave(filename= "figures/SSL_pred.prob_single.png", plot = p4b, width = 9, height = 9)
+
+################################################################################
+## Figures for the online Resource
+################################################################################
+
 ################################################################################
 ## Tree frequency distribution across months and traps (box plots)
 ################################################################################
@@ -90,90 +256,8 @@ p12 <- arrangeGrob(p1, p2, ncol = 2, nrow = 1)
 ggsave(filename= "figures/frequency_boxplots.pdf", plot = p12, width =8, height = 4, device=cairo_pdf)
 ggsave(filename= "figures/frequency_boxplots.png", plot = p12, width =8, height = 4)
 
-ggsave(filename= "figures/frequency_boxplots.tiff", plot = p12, width =8, height = 4, dpi=300)
+ggsave(filename= "figures/frequency_boxplots.tiff", plot = p12, width =8, height = 4)
 ggsave(filename= "figures/frequency_boxplots.eps", plot = p12, width =8, height = 4, device=cairo_ps)
-
-
-################################################################################
-## Synchrony null models limits x observed values
-################################################################################
-
-p3 <-
-    ggplot(summary.dmed, aes(year, mean.ov)) +
-    geom_point(data = observed, aes(y = mean.ov, shape = "Observed"),
-               size = 3, position=position_nudge(x = -0.3)) +
-    geom_errorbar(aes(ymin = mean.ov.low, ymax = mean.ov.upp, color = by, lwd= by),
-                  position = position_dodge(width=0.2)) +
-    ylab("Mean temporal asynchrony (Bray Curtis)") +
-    xlab("") +
-    labs(color = "Null model:", shape = "", size = "Null model:", linetype = "Null model:") +
-    scale_color_manual(values = c("black",  "darkgrey", "lightgrey")) +
-    ##scale_linetype_manual(values = c("11","1","11")) +
-    scale_size_manual(values = c(1.5,1.5,1.5)) +
-    theme_Publication() 
-
-ggsave(filename= "figures/null_models_synchrony.pdf", plot = p3, width = 9, height = 7.5, device=cairo_pdf)
-ggsave(filename= "figures/null_models_synchrony.png", plot = p3, width = 9, height = 7.5)
-
-ggsave(filename= "figures/null_models_synchrony.eps", plot = p3, width = 9, height = 7.5, device=cairo_ps)
-ggsave(filename= "figures/null_models_synchrony.tiff", plot = p3, width = 9, height = 7.5, dpi = 300)
-
-################################################################################
-## SSL predicted by glmms and observed
-################################################################################
-## In separated panels
-p4a <-
-    ab.sp.rsl %>%
-    mutate(height.class = ifelse(height <= median.Hloc,
-                                 paste0("Tree Height < ", median.Hloc, " m"),
-                                 paste0("Tree Height > ", median.Hloc, " m")),
-           freq.class = ifelse(freq <= median.freq,
-                               paste0("Adult Frequency < ", median.freq),
-                               paste0("Adult Frequency > ", median.freq))) %>%
-    ggplot(aes(mass, ssl.mean)) +
-    geom_ribbon(aes(y = pfit, ymin = plower, ymax = pupper), data = ssl.pred, fill="gray", alpha=0.75) +
-    geom_point(size=2) +
-    geom_linerange(aes(ymin=ssl.min, ymax = ssl.max)) +
-    geom_line(aes(y = pfit), data = ssl.pred)+
-    scale_x_log10() +
-    ylab("SSL") +
-    xlab("Seed mass (g)") +
-    facet_grid(height.class ~ freq.class) +
-    theme_Publication()
-## In a single panel
-ab.sp.rsl %<>%
-    mutate(height.class = ifelse(height <= median.Hloc,
-                                 paste0("Tree Height < ", median.Hloc, " m"),
-                                 paste0("Tree Height > ", median.Hloc, " m")),
-           freq.class = ifelse(freq <= median.freq,
-                               paste0("Adult Frequency < ", median.freq),
-                               paste0("Adult Frequency > ", median.freq)),
-           classe = paste(height.class,freq.class, sep =" , "))
-                      
-p4b <-
-    ssl.pred %>%
-    mutate(classe = paste(height.class,freq.class, sep =" , ")) %>%
-    ggplot(aes(x=mass)) +
-    geom_point(data = ab.sp.rsl, aes(y=ssl.mean, color = classe), size=2) +
-    geom_line(aes(y=pfit, color = classe), size=1.2) +
-    geom_ribbon(aes(ymin = plower, ymax =pupper, fill = classe), alpha =0.1) +
-    scale_x_log10() +
-    theme_bw() +
-    ylab("SSL")+
-    xlab("Seed mass (g)") +
-    theme_Publication() +
-    theme(legend.position = c(0.75, 0.25), legend.title = element_blank(), legend.direction = "vertical")
-
-
-ggsave(filename= "figures/SSL_pred_prob.pdf", plot = p4a, width = 9, height = 9, device=cairo_pdf)
-ggsave(filename= "figures/SSL_pred.prob.png", plot = p4a, width = 9, height = 9)
-ggsave(filename= "figures/SSL_pred_prob_single.pdf", plot = p4b, width = 9, height = 9, device=cairo_pdf)
-ggsave(filename= "figures/SSL_pred.prob_single.png", plot = p4b, width = 9, height = 9)
-
-ggsave(filename= "figures/SSL_pred_prob.eps", plot = p4a, width = 9, height = 9, device=cairo_ps)
-ggsave(filename= "figures/SSL_pred.prob.tiff", plot = p4a, width = 9, height = 9, dpi = 300)
-ggsave(filename= "figures/SSL_pred_prob_single.eps", plot = p4b, width = 9, height = 9, device=cairo_ps)
-ggsave(filename= "figures/SSL_pred.prob_single.tiff", plot = p4b, width = 9, height = 9, dpi = 300)
 
 
 ################################################################################
@@ -192,9 +276,8 @@ p5  <-
 
 ggsave(filename= "figures/SSL_all_pred_prob_glm.pdf", plot = p5, width = 9, height = 9, device=cairo_pdf)
 ggsave(filename= "figures/SSL_all_pred.prob_glm.png", plot = p5, width = 9, height = 9)
-
 ggsave(filename= "figures/SSL_all_pred_prob_glm.eps", plot = p5, width = 9, height = 9, device=cairo_ps)
-ggsave(filename= "figures/SSL_all_pred.prob_glm.png", plot = p5, width = 9, height = 9, dpi = 300)
+ggsave(filename= "figures/SSL_all_pred.prob_glm.png", plot = p5, width = 9, height = 9)
 
 
 ################################################################################
@@ -215,12 +298,15 @@ p6a <-
     geom_line(aes(y = pfit), data = tsl.pred)+
     geom_ribbon(aes(y = pfit, ymin = plower, ymax = pupper), data = tsl.pred, fill="gray", alpha=0.25) +
     facet_grid(height.class ~ freq.class) +
-    scale_x_log10() +
+    scale_x_log10(breaks = c(0.001, 0.01, 0.1, 1), labels = c("0.001","0.01", "0.1", "1") ) +
     theme_bw() +
     ylab("TSL") +
     xlab("Seed mass (g)") +
     facet_grid(height.class ~ freq.class) +
-    theme_Publication()
+    theme_Publication(base_size=16) +
+    theme(axis.text=element_text(size=14))+
+    theme(axis.title=element_text(size=15))
+
 
 ## In a single panel
 ab.sp.rsl %<>%
@@ -246,16 +332,20 @@ p6b <-
     theme_Publication() +
     theme(legend.position = c(0.75, 0.25), legend.title = element_blank(), legend.direction = "vertical")
 
+## ggsave(filename= "figures/TSL_pred_prob.pdf", plot = p6a, width = 9, height = 9, device=cairo_pdf)
+## ggsave(filename= "figures/TSL_pred.prob.png", plot = p6a, width = 9, height = 9)
+## ggsave(filename= "figures/TSL_pred_prob.eps", plot = p6a, width = 9, height = 9, device=cairo_ps)
+## ggsave(filename= "figures/TSL_pred.prob.tiff", plot = p6a, width = 9, height = 9)
 
-ggsave(filename= "figures/TSL_pred_prob.pdf", plot = p6a, width = 9, height = 9, device=cairo_pdf)
-ggsave(filename= "figures/TSL_pred.prob.png", plot = p6a, width = 9, height = 9)
+ggsave(filename= "figures/figure_5.pdf", plot = p6a, width = 9, height = 9, device=cairo_pdf)
+ggsave(filename= "figures/figure_5.png", plot = p6a, width = 9, height = 9)
+ggsave(filename= "figures/figure_5.eps", plot = p6a, width = 9, height = 9, device=cairo_ps)
+ggsave(filename= "figures/figure_5.tiff", plot = p6a, width = 9, height = 9)
+
+ggsave(filename= "figures/TSL_pred_prob_single.eps", plot = p6b, width = 9, height = 9, device=cairo_ps)
+ggsave(filename= "figures/TSL_pred.prob_single.tiff", plot = p6b, width = 9, height = 9)
 ggsave(filename= "figures/TSL_pred_prob_single.pdf", plot = p6b, width = 9, height = 9, device=cairo_pdf)
 ggsave(filename= "figures/TSL_pred.prob_single.png", plot = p6b, width = 9, height = 9)
-
-ggsave(filename= "figures/TSL_pred_prob.eps", plot = p6a, width = 9, height = 9, device=cairo_ps)
-ggsave(filename= "figures/TSL_pred.prob.tiff", plot = p6a, width = 9, height = 9, dpi = 300)
-ggsave(filename= "figures/TSL_pred_prob_single.eps", plot = p6b, width = 9, height = 9, device=cairo_ps)
-ggsave(filename= "figures/TSL_pred.prob_single.tiff", plot = p6b, width = 9, height = 9, dpi = 300)
 
 ################################################################################
 ## SSL Predicted by glms and observed
@@ -275,55 +365,5 @@ ggsave(filename= "figures/TSL_all_pred_prob_glm.pdf", plot = p7, width = 9, heig
 ggsave(filename= "figures/TSL_all_pred.prob_glm.png", plot = p7, width = 9, height = 9)
 
 ggsave(filename= "figures/TSL_all_pred_prob_glm.eps", plot = p7, width = 9, height = 9, device=cairo_ps)
-ggsave(filename= "figures/TSL_all_pred.prob_glm.tiff", plot = p7, width = 9, height = 9, dpi = 300)
+ggsave(filename= "figures/TSL_all_pred.prob_glm.tiff", plot = p7, width = 9, height = 9)
 
-################################################################################
-## TSL x SSL relationship
-################################################################################
-## Joining data for each year and of pooled years
-tmp1 <-
-    abundants2 %>%
-    mutate(year = "Pooled", ssl = ssl_tot40, tsl = tsl_tot12) %>%
-    dplyr::select(species, sp.i, ssl, tsl, year) %>%
-    bind_rows(abundants[, c("species", "sp.i", "ssl", "tsl", "year")]) %>%
-    mutate(year = ifelse(grepl("Pooled", year), year, paste("Year",year))) %>%
-    arrange(year, ssl, tsl, sp.i)
-tmp1$dupl <- duplicated(tmp1[, c("year", "ssl", "tsl")])
-## For the figure caption of the 2nd plot below: Species that share the same point in each panel
-tmp1 %>%
-    group_by(year,ssl,tsl) %>%
-    summarise(N = n(), sigla = paste(sp.i, collapse =",")) %>%
-    filter(N>1) %>%
-    data.frame()
-## The plots
-p8 <-
-    tmp1 %>%
-    ggplot(aes(ssl, tsl, label = sp.i)) +
-    geom_point() +
-    geom_text_repel(alpha =.3, size = 3, max.overlaps = 20) +
-    xlab("SSL") +
-    ylab("TSL") +
-    xlim(0,1.05) +
-    ylim(0,1.05) +
-    theme_Publication()
-## All points and all years (a bit messy)
-p8a <- p8 + facet_wrap(~year, nrow=2)
-## select a single point and label for overlaps
-p8b <- p8 %+% filter(tmp1, !dupl) + facet_wrap(~year, nrow=2)
-## Only pooled year, all points
-p8c <- p8 %+% filter(tmp1, year == "Pooled")
-
-
-ggsave(filename= "figures/TSLxSSL_all_spp.pdf", plot = p8a, width = 9, height = 9, device=cairo_pdf)
-ggsave(filename= "figures/TSLxSSL_all_spp.png", plot = p8a, width = 9, height = 9)
-ggsave(filename= "figures/TSLxSSL_ommit_overlaps.pdf", plot = p8b, width = 9, height = 9, device=cairo_pdf)
-ggsave(filename= "figures/TSLxSSL_ommit_overlaps.png", width = 9, height = 9, plot = p8b)
-ggsave(filename= "figures/TSLxSSL_pooled.pdf", plot = p8c, width = 9, height = 9, device=cairo_pdf)
-ggsave(filename= "figures/TSLxSSL_pooled.png", width = 9, height = 9, plot = p8c)
-
-ggsave(filename= "figures/TSLxSSL_all_spp.eps", plot = p8a, width = 9, height = 9, device=cairo_ps)
-ggsave(filename= "figures/TSLxSSL_all_spp.tiff", plot = p8a, width = 9, height = 9, dpi = 300)
-ggsave(filename= "figures/TSLxSSL_ommit_overlaps.eps", plot = p8b, width = 9, height = 9, device=cairo_ps)
-ggsave(filename= "figures/TSLxSSL_ommit_overlaps.tiff", width = 9, height = 9, plot = p8b, dpi = 300)
-ggsave(filename= "figures/TSLxSSL_pooled.eps", plot = p8c, width = 9, height = 9, device=cairo_ps)
-ggsave(filename= "figures/TSLxSSL_pooled.tiff", width = 9, height = 9, plot = p8c, dpi = 300)
